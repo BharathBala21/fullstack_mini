@@ -1,0 +1,25 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production build outputs
+dist/
+build/
+
+# Local Environment Variables
+.env
+.env.local
+
+# Database files
+backend/data/*.json
+
+# Editor artifacts
+.DS_Store
+.idea/
+.vscode/
+
+# Multer uploads (keep folder structure)
+backend/uploads/*
+!backend/uploads/.gitkeep

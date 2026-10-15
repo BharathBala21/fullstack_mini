@@ -1,0 +1,16 @@
+{
+  "name": "fullstack-recipe-sharing-app",
+  "version": "1.0.0",
+  "description": "Full-stack Recipe Sharing App with React, Express, MongoDB/Mongoose, Multer, and Tailwind CSS",
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run server\" \"npm run client\"",
+    "server": "npm run dev --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "test:api": "node test-api.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
