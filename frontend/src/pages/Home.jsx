@@ -5,6 +5,7 @@ import SearchAndFilter from '../components/SearchAndFilter';
 import Pagination from '../components/Pagination';
 import { Utensils, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PAGINATION, RECIPE_DEFAULTS } from '../config/constants';
 
 const Home = () => {
   const [recipes, setRecipes] = useState([]);
@@ -17,11 +18,11 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [difficulty, setDifficulty] = useState('All');
   const [maxTime, setMaxTime] = useState('');
-  const [sort, setSort] = useState('newest');
+  const [sort, setSort] = useState(RECIPE_DEFAULTS.SORT);
   const [categories, setCategories] = useState([]);
 
   // Pagination state
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(PAGINATION.DEFAULT_PAGE);
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
 
@@ -45,7 +46,7 @@ const Home = () => {
     try {
       const params = {
         page,
-        limit: 9,
+        limit: PAGINATION.DEFAULT_LIMIT,
         sort,
       };
 
@@ -70,7 +71,7 @@ const Home = () => {
   }, [page, searchQuery, ingredientQuery, selectedCategory, difficulty, maxTime, sort]);
 
   useEffect(() => {
-    setPage(1);
+    setPage(PAGINATION.DEFAULT_PAGE);
   }, [searchQuery, ingredientQuery, selectedCategory, difficulty, maxTime, sort]);
 
   useEffect(() => {
@@ -83,8 +84,8 @@ const Home = () => {
     setSelectedCategory('All');
     setDifficulty('All');
     setMaxTime('');
-    setSort('newest');
-    setPage(1);
+    setSort(RECIPE_DEFAULTS.SORT);
+    setPage(PAGINATION.DEFAULT_PAGE);
   };
 
   const handleRecipeCardUpdate = (updatedRecipe) => {

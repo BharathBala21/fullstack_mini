@@ -15,6 +15,7 @@ import {
   Minus,
   AlertTriangle,
 } from 'lucide-react';
+import { DEFAULT_RECIPE_IMAGE, RECIPE_DEFAULTS } from '../config/constants';
 
 const RecipeDetail = () => {
   const { id } = useParams();
@@ -27,7 +28,7 @@ const RecipeDetail = () => {
 
   // Scalable servings
   const [servingsMultiplier, setServingsMultiplier] = useState(1);
-  const [originalServings, setOriginalServings] = useState(4);
+  const [originalServings, setOriginalServings] = useState(RECIPE_DEFAULTS.SERVINGS);
 
   // Checked ingredients for cooking
   const [checkedIngredients, setCheckedIngredients] = useState({});
@@ -58,7 +59,7 @@ const RecipeDetail = () => {
           setLikes(rec.likes || 0);
           setIsLiked(Array.isArray(rec.likedBy) && rec.likedBy.includes(user.id));
           setIsSaved(Array.isArray(rec.savedBy) && rec.savedBy.includes(user.id));
-          setOriginalServings(rec.servings || 4);
+          setOriginalServings(rec.servings || RECIPE_DEFAULTS.SERVINGS);
         } else {
           setError('Recipe not found.');
         }
@@ -194,7 +195,7 @@ const RecipeDetail = () => {
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
           <span className="font-semibold text-stone-800 uppercase tracking-wide">
-            {recipe.category || 'Dinner'}
+            {recipe.category || RECIPE_DEFAULTS.CATEGORY}
           </span>
           {recipe.difficulty && (
             <>
@@ -277,7 +278,7 @@ const RecipeDetail = () => {
       {/* Cover Image */}
       <div className="rounded-xl overflow-hidden aspect-[16/9] bg-stone-100 border border-stone-200">
         <img
-          src={recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'}
+          src={recipe.imageUrl || DEFAULT_RECIPE_IMAGE}
           alt={recipe.title}
           className="w-full h-full object-cover"
         />
@@ -287,7 +288,7 @@ const RecipeDetail = () => {
       <div className="grid grid-cols-3 gap-3 text-center border border-stone-200 rounded-xl p-3 bg-stone-50/50">
         <div>
           <span className="text-[11px] uppercase tracking-wide text-stone-500 font-semibold block">Prep Time</span>
-          <span className="text-sm font-bold text-stone-900">{recipe.prepTime || 10} min</span>
+          <span className="text-sm font-bold text-stone-900">{recipe.prepTime || RECIPE_DEFAULTS.PREP_TIME} min</span>
         </div>
         <div className="border-x border-stone-200">
           <span className="text-[11px] uppercase tracking-wide text-stone-500 font-semibold block">Cook Time</span>
@@ -296,7 +297,7 @@ const RecipeDetail = () => {
         <div>
           <span className="text-[11px] uppercase tracking-wide text-stone-500 font-semibold block">Total Time</span>
           <span className="text-sm font-bold text-stone-900">
-            {(recipe.prepTime || 10) + (recipe.cookingTime || 0)} min
+            {(recipe.prepTime || RECIPE_DEFAULTS.PREP_TIME) + (recipe.cookingTime || 0)} min
           </span>
         </div>
       </div>

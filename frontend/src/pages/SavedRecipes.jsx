@@ -4,6 +4,7 @@ import { useUser } from '../context/UserContext';
 import RecipeCard from '../components/RecipeCard';
 import { Bookmark, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PAGINATION } from '../config/constants';
 
 const SavedRecipes = () => {
   const { user } = useUser();
@@ -15,7 +16,10 @@ const SavedRecipes = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await recipeApi.getRecipes({ savedBy: user.id, limit: 50 });
+      const res = await recipeApi.getRecipes({
+        savedBy: user.id,
+        limit: PAGINATION.MAX_USER_LIST_LIMIT,
+      });
       if (res.success) {
         setRecipes(res.data);
       }

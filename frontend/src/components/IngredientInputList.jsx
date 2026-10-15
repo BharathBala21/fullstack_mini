@@ -1,22 +1,6 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-
-const COMMON_UNITS = [
-  '',
-  'tbsp',
-  'tsp',
-  'cup',
-  'cups',
-  'g',
-  'kg',
-  'oz',
-  'lbs',
-  'ml',
-  'cloves',
-  'pinch',
-  'slices',
-  'pieces',
-];
+import { COMMON_UNITS } from '../config/constants';
 
 const IngredientInputList = ({ ingredients, onChange }) => {
   const handleItemChange = (index, field, value) => {

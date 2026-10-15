@@ -66,7 +66,8 @@ app.use((req, res) => {
 // Global Error Handler
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const { DEFAULT_PORT } = require('./config/constants');
+const PORT = process.env.PORT || DEFAULT_PORT;
 
 const server = app.listen(PORT, () => {
   console.log(`Recipe API running on port ${PORT}`);

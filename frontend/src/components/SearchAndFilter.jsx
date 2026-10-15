@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import {
+  DEFAULT_CATEGORIES,
+  DIFFICULTIES,
+  SORT_OPTIONS,
+  COOK_TIME_PRESETS,
+  RECIPE_DEFAULTS,
+} from '../config/constants';
 
 const SearchAndFilter = ({
   searchQuery,
@@ -25,12 +32,10 @@ const SearchAndFilter = ({
     selectedCategory !== 'All' ||
     difficulty !== 'All' ||
     Boolean(maxTime) ||
-    sort !== 'newest';
+    sort !== RECIPE_DEFAULTS.SORT;
 
   const categoryList =
-    categories.length > 0
-      ? categories
-      : ['All', 'Dinner', 'Lunch', 'Breakfast', 'Dessert', 'Vegetarian'];
+    categories.length > 0 ? categories : DEFAULT_CATEGORIES;
 
   return (
     <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
@@ -118,10 +123,11 @@ const SearchAndFilter = ({
               onChange={(e) => setSort(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              <option value="newest">Newest</option>
-              <option value="likes">Most Liked</option>
-              <option value="cookingTime">Quickest Cook Time</option>
-              <option value="oldest">Oldest</option>
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -135,10 +141,11 @@ const SearchAndFilter = ({
               onChange={(e) => setDifficulty(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              <option value="All">All</option>
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
+              {DIFFICULTIES.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -155,11 +162,11 @@ const SearchAndFilter = ({
               onChange={(e) => setMaxTime(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              <option value="">Any time</option>
-              <option value="15">Under 15 mins</option>
-              <option value="30">Under 30 mins</option>
-              <option value="45">Under 45 mins</option>
-              <option value="60">Under 60 mins</option>
+              {COOK_TIME_PRESETS.map((preset) => (
+                <option key={preset.value} value={preset.value}>
+                  {preset.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useUser } from '../context/UserContext';
 import RecipeCard from '../components/RecipeCard';
 import { Plus, AlertCircle, Utensils } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PAGINATION } from '../config/constants';
 
 const MyRecipes = () => {
   const { user } = useUser();
@@ -15,7 +16,10 @@ const MyRecipes = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await recipeApi.getRecipes({ authorId: user.id, limit: 50 });
+      const res = await recipeApi.getRecipes({
+        authorId: user.id,
+        limit: PAGINATION.MAX_USER_LIST_LIMIT,
+      });
       if (res.success) {
         setRecipes(res.data);
       }

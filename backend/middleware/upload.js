@@ -1,6 +1,12 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const {
+  MAX_FILE_SIZE_BYTES,
+  MAX_UPLOAD_SIZE_MB,
+  ALLOWED_IMAGE_EXTENSIONS,
+  ALLOWED_MIME_TYPES,
+} = require('../config/constants');
 
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -19,22 +25,24 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = /jpeg|jpg|png|webp|gif/;
-  const extname = allowedExtensions.test(
-    path.extname(file.originalname).toLowerCase()
-  );
-  const mimetype = allowedExtensions.test(file.mimetype);
+  const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+  const isValidExt = ALLOWED_IMAGE_EXTENSIONS.includes(ext);
+  const isValidMime = ALLOWED_MIME_TYPES.includes(file.mimetype);
 
-  if (extname && mimetype) {
+  if (isValidExt && isValidMime) {
     return cb(null, true);
   } else {
-    cb(new Error('Only image files (jpeg, jpg, png, webp, gif) are allowed!'));
+    cb(
+      new Error(
+        `Allowed image formats: ${ALLOWED_IMAGE_EXTENSIONS.join(', ')} (Max ${MAX_UPLOAD_SIZE_MB}MB)`
+      )
+    );
   }
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+  limits: { fileSize: MAX_FILE_SIZE_BYTES },
   fileFilter: fileFilter,
 });
 

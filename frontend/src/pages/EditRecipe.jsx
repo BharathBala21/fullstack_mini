@@ -6,35 +6,29 @@ import IngredientInputList from '../components/IngredientInputList';
 import StepInputList from '../components/StepInputList';
 import ImageUploader from '../components/ImageUploader';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
-
-const CATEGORIES = [
-  'Dinner',
-  'Lunch',
-  'Breakfast',
-  'Dessert',
-  'Vegetarian',
-  'Snack',
-  'Drink',
-  'Appetizer',
-  'Other',
-];
+import {
+  RECIPE_CATEGORIES,
+  RECIPE_DIFFICULTIES,
+  RECIPE_DEFAULTS,
+} from '../config/constants';
 
 const EditRecipe = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useUser();
 
+  const [categories, setCategories] = useState(RECIPE_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Dinner');
-  const [difficulty, setDifficulty] = useState('Medium');
-  const [cookingTime, setCookingTime] = useState(30);
-  const [prepTime, setPrepTime] = useState(15);
-  const [servings, setServings] = useState(4);
+  const [category, setCategory] = useState(RECIPE_DEFAULTS.CATEGORY);
+  const [difficulty, setDifficulty] = useState(RECIPE_DEFAULTS.DIFFICULTY);
+  const [cookingTime, setCookingTime] = useState(RECIPE_DEFAULTS.COOKING_TIME);
+  const [prepTime, setPrepTime] = useState(RECIPE_DEFAULTS.PREP_TIME);
+  const [servings, setServings] = useState(RECIPE_DEFAULTS.SERVINGS);
 
   const [imageUrl, setImageUrl] = useState('');
   const [imageFile, setImageFile] = useState(null);
@@ -42,6 +36,21 @@ const EditRecipe = () => {
 
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await recipeApi.getCategories();
+        if (res.success && Array.isArray(res.data)) {
+          const filtered = res.data.filter((c) => c !== 'All');
+          if (filtered.length > 0) setCategories(filtered);
+        }
+      } catch (e) {
+        console.warn('Using default categories');
+      }
+    };
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -52,11 +61,11 @@ const EditRecipe = () => {
           const rec = res.data;
           setTitle(rec.title || '');
           setDescription(rec.description || '');
-          setCategory(rec.category || 'Dinner');
-          setDifficulty(rec.difficulty || 'Medium');
-          setCookingTime(rec.cookingTime || 30);
-          setPrepTime(rec.prepTime || 10);
-          setServings(rec.servings || 4);
+          setCategory(rec.category || RECIPE_DEFAULTS.CATEGORY);
+          setDifficulty(rec.difficulty || RECIPE_DEFAULTS.DIFFICULTY);
+          setCookingTime(rec.cookingTime || RECIPE_DEFAULTS.COOKING_TIME);
+          setPrepTime(rec.prepTime || RECIPE_DEFAULTS.PREP_TIME);
+          setServings(rec.servings || RECIPE_DEFAULTS.SERVINGS);
           setImageUrl(rec.imageUrl || '');
           setPreviewUrl(rec.imageUrl || '');
           setIngredients(
@@ -219,7 +228,7 @@ const EditRecipe = () => {
               onChange={(e) => setCategory(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -234,9 +243,11 @@ const EditRecipe = () => {
               onChange={(e) => setDifficulty(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
+              {RECIPE_DIFFICULTIES.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
             </select>
           </div>
 

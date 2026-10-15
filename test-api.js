@@ -1,7 +1,8 @@
 const http = require('http');
+const { DEFAULT_PORT } = require('./backend/config/constants');
 
-const PORT = 5000;
-const BASE_URL = `http://localhost:${PORT}`;
+const PORT = process.env.PORT || DEFAULT_PORT;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 function request(method, path, body = null, headers = {}) {
   return new Promise((resolve, reject) => {

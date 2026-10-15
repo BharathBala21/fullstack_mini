@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { recipeApi } from '../services/api';
 import { Clock, Heart, Bookmark } from 'lucide-react';
+import { DEFAULT_RECIPE_IMAGE, RECIPE_DEFAULTS } from '../config/constants';
 
 const RecipeCard = ({ recipe, onUpdate }) => {
   const { user, showToast, toggleLocalSaved, toggleLocalLiked } = useUser();
@@ -63,12 +64,12 @@ const RecipeCard = ({ recipe, onUpdate }) => {
       <div>
         <Link to={`/recipes/${recipe._id}`} className="block relative aspect-[16/10] overflow-hidden bg-stone-100">
           <img
-            src={recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'}
+            src={recipe.imageUrl || DEFAULT_RECIPE_IMAGE}
             alt={recipe.title}
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
             loading="lazy"
             onError={(e) => {
-              e.target.src = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80';
+              e.target.src = DEFAULT_RECIPE_IMAGE;
             }}
           />
 
@@ -89,7 +90,7 @@ const RecipeCard = ({ recipe, onUpdate }) => {
         <div className="p-4">
           <div className="flex items-center gap-2 text-[11px] text-stone-500 mb-1.5">
             <span className="font-semibold text-stone-700 uppercase tracking-wide">
-              {recipe.category || 'Dinner'}
+              {recipe.category || RECIPE_DEFAULTS.CATEGORY}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">

@@ -1,4 +1,14 @@
 const mongoose = require('mongoose');
+const {
+  RECIPE_CATEGORIES,
+  DIFFICULTIES,
+  DEFAULT_RECIPE_IMAGE,
+  DEFAULT_AUTHOR_NAME,
+  DEFAULT_AUTHOR_ID,
+  DEFAULT_PREP_TIME,
+  DEFAULT_SERVINGS,
+  MAX_TITLE_LENGTH,
+} = require('../config/constants');
 
 const ingredientSchema = new mongoose.Schema(
   {
@@ -23,7 +33,7 @@ const recipeSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Recipe title is required'],
       trim: true,
-      maxlength: [120, 'Title cannot exceed 120 characters'],
+      maxlength: [MAX_TITLE_LENGTH, `Title cannot exceed ${MAX_TITLE_LENGTH} characters`],
     },
     description: {
       type: String,
@@ -55,31 +65,31 @@ const recipeSchema = new mongoose.Schema(
     },
     prepTime: {
       type: Number,
-      default: 10,
+      default: DEFAULT_PREP_TIME,
       min: [0, 'Prep time cannot be negative'],
     },
     servings: {
       type: Number,
-      default: 4,
+      default: DEFAULT_SERVINGS,
       min: [1, 'Servings must be at least 1'],
     },
     category: {
       type: String,
-      enum: ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Drink', 'Appetizer', 'Vegetarian', 'Other'],
-      default: 'Dinner',
+      enum: RECIPE_CATEGORIES,
+      default: RECIPE_CATEGORIES[0] || 'Dinner',
     },
     difficulty: {
       type: String,
-      enum: ['Easy', 'Medium', 'Hard'],
-      default: 'Medium',
+      enum: DIFFICULTIES,
+      default: DIFFICULTIES[1] || 'Medium',
     },
     imageUrl: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80',
+      default: DEFAULT_RECIPE_IMAGE,
     },
     author: {
-      name: { type: String, default: 'Chef User' },
-      id: { type: String, default: 'user_default' },
+      name: { type: String, default: DEFAULT_AUTHOR_NAME },
+      id: { type: String, default: DEFAULT_AUTHOR_ID },
     },
     likes: {
       type: Number,
@@ -99,7 +109,7 @@ const recipeSchema = new mongoose.Schema(
   }
 );
 
-// Indexes for fast text search and queries
+// Search indexes
 recipeSchema.index({ title: 'text', 'ingredients.name': 'text', category: 'text' });
 
 module.exports = mongoose.model('Recipe', recipeSchema);

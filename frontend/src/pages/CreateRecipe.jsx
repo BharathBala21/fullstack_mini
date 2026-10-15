@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { recipeApi } from '../services/api';
 import { useUser } from '../context/UserContext';
@@ -6,30 +6,25 @@ import IngredientInputList from '../components/IngredientInputList';
 import StepInputList from '../components/StepInputList';
 import ImageUploader from '../components/ImageUploader';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
-
-const CATEGORIES = [
-  'Dinner',
-  'Lunch',
-  'Breakfast',
-  'Dessert',
-  'Vegetarian',
-  'Snack',
-  'Drink',
-  'Appetizer',
-  'Other',
-];
+import {
+  RECIPE_CATEGORIES,
+  RECIPE_DIFFICULTIES,
+  RECIPE_DEFAULTS,
+  DEFAULT_RECIPE_IMAGE,
+} from '../config/constants';
 
 const CreateRecipe = () => {
   const navigate = useNavigate();
   const { user, showToast } = useUser();
 
+  const [categories, setCategories] = useState(RECIPE_CATEGORIES);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Dinner');
-  const [difficulty, setDifficulty] = useState('Medium');
-  const [cookingTime, setCookingTime] = useState(30);
-  const [prepTime, setPrepTime] = useState(15);
-  const [servings, setServings] = useState(4);
+  const [category, setCategory] = useState(RECIPE_DEFAULTS.CATEGORY);
+  const [difficulty, setDifficulty] = useState(RECIPE_DEFAULTS.DIFFICULTY);
+  const [cookingTime, setCookingTime] = useState(RECIPE_DEFAULTS.COOKING_TIME);
+  const [prepTime, setPrepTime] = useState(RECIPE_DEFAULTS.PREP_TIME);
+  const [servings, setServings] = useState(RECIPE_DEFAULTS.SERVINGS);
 
   const [imageUrl, setImageUrl] = useState('');
   const [imageFile, setImageFile] = useState(null);
@@ -47,6 +42,21 @@ const CreateRecipe = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await recipeApi.getCategories();
+        if (res.success && Array.isArray(res.data)) {
+          const filtered = res.data.filter((c) => c !== 'All');
+          if (filtered.length > 0) setCategories(filtered);
+        }
+      } catch (e) {
+        console.warn('Using default categories');
+      }
+    };
+    loadCategories();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,9 +113,7 @@ const CreateRecipe = () => {
           cookingTime: Number(cookingTime),
           prepTime: Number(prepTime),
           servings: Number(servings),
-          imageUrl:
-            imageUrl ||
-            'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80',
+          imageUrl: imageUrl || DEFAULT_RECIPE_IMAGE,
           ingredients: validIngredients,
           steps: validSteps,
           author: {
@@ -156,7 +164,6 @@ const CreateRecipe = () => {
       )}
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-stone-200 p-6 space-y-6">
-        {/* Title */}
         <div>
           <label className="block text-xs font-semibold text-stone-700 mb-1">
             Title
@@ -171,7 +178,6 @@ const CreateRecipe = () => {
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-xs font-semibold text-stone-700 mb-1">
             Description
@@ -185,7 +191,6 @@ const CreateRecipe = () => {
           />
         </div>
 
-        {/* Metadata row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div>
             <label className="block font-semibold text-stone-700 mb-1">Category</label>
@@ -194,7 +199,7 @@ const CreateRecipe = () => {
               onChange={(e) => setCategory(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -209,9 +214,11 @@ const CreateRecipe = () => {
               onChange={(e) => setDifficulty(e.target.value)}
               className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
-              <option value="Easy">Easy</option>
-              <option value="Medium">Medium</option>
-              <option value="Hard">Hard</option>
+              {RECIPE_DIFFICULTIES.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -239,7 +246,6 @@ const CreateRecipe = () => {
           </div>
         </div>
 
-        {/* Cover Photo */}
         <div className="pt-2 border-t border-stone-100">
           <ImageUploader
             imageUrl={imageUrl}
@@ -251,7 +257,6 @@ const CreateRecipe = () => {
           />
         </div>
 
-        {/* Ingredients */}
         <div className="pt-2 border-t border-stone-100">
           <IngredientInputList
             ingredients={ingredients}
@@ -259,12 +264,10 @@ const CreateRecipe = () => {
           />
         </div>
 
-        {/* Instructions */}
         <div className="pt-2 border-t border-stone-100">
           <StepInputList steps={steps} onChange={setSteps} />
         </div>
 
-        {/* Submit row */}
         <div className="pt-4 border-t border-stone-100 flex items-center justify-end gap-2">
           <button
             type="button"

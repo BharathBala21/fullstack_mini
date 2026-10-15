@@ -1,13 +1,24 @@
 const Recipe = require('../models/Recipe');
 const fileStore = require('../models/recipeStore');
 const { isMongoConnected } = require('../config/db');
+const {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_SORT_OPTION,
+  DEFAULT_COOKING_TIME,
+  DEFAULT_PREP_TIME,
+  DEFAULT_SERVINGS,
+  DEFAULT_RECIPE_IMAGE,
+  DEFAULT_AUTHOR_NAME,
+  DEFAULT_AUTHOR_ID,
+  FILTER_CATEGORIES,
+} = require('../config/constants');
 
-// Helper to normalize JSON arrays for ingredients & steps (handles both JSON and multipart form data)
 const parseJsonField = (field, defaultValue = []) => {
   if (typeof field === 'string') {
     try {
       return JSON.parse(field);
-    } catch (e) {
+    } catch {
       return defaultValue;
     }
   }
@@ -16,7 +27,6 @@ const parseJsonField = (field, defaultValue = []) => {
 
 // @desc    Get all recipes with search, ingredient search, category filter, sorting, pagination
 // @route   GET /api/recipes
-// @access  Public
 exports.getRecipes = async (req, res, next) => {
   try {
     const {
@@ -25,15 +35,15 @@ exports.getRecipes = async (req, res, next) => {
       category,
       difficulty,
       maxTime,
-      sort = 'newest',
-      page = 1,
-      limit = 9,
+      sort = DEFAULT_SORT_OPTION,
+      page = DEFAULT_PAGE_NUMBER,
+      limit = DEFAULT_PAGE_SIZE,
       authorId,
       savedBy,
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page, 10) || 1);
-    const limitNum = Math.max(1, parseInt(limit, 10) || 9);
+    const pageNum = Math.max(1, parseInt(page, 10) || DEFAULT_PAGE_NUMBER);
+    const limitNum = Math.max(1, parseInt(limit, 10) || DEFAULT_PAGE_SIZE);
 
     if (!isMongoConnected()) {
       const result = await fileStore.find({
@@ -58,7 +68,6 @@ exports.getRecipes = async (req, res, next) => {
       });
     }
 
-    // Build MongoDB query
     const filter = {};
 
     if (search) {
@@ -95,7 +104,6 @@ exports.getRecipes = async (req, res, next) => {
       filter.savedBy = savedBy;
     }
 
-    // Sorting options
     let sortOption = { createdAt: -1 };
     if (sort === 'oldest') sortOption = { createdAt: 1 };
     else if (sort === 'likes') sortOption = { likes: -1, createdAt: -1 };
@@ -122,7 +130,6 @@ exports.getRecipes = async (req, res, next) => {
 
 // @desc    Get single recipe by ID
 // @route   GET /api/recipes/:id
-// @access  Public
 exports.getRecipeById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -152,12 +159,10 @@ exports.getRecipeById = async (req, res, next) => {
 
 // @desc    Create a new recipe
 // @route   POST /api/recipes
-// @access  Public
 exports.createRecipe = async (req, res, next) => {
   try {
     const body = { ...req.body };
 
-    // Parse ingredients & steps if sent as JSON string (via form-data)
     if (body.ingredients) {
       body.ingredients = parseJsonField(body.ingredients, []);
     }
@@ -167,21 +172,20 @@ exports.createRecipe = async (req, res, next) => {
     if (body.author && typeof body.author === 'string') {
       try {
         body.author = JSON.parse(body.author);
-      } catch (e) {
-        body.author = { name: body.author, id: 'user_default' };
+      } catch {
+        body.author = { name: body.author, id: DEFAULT_AUTHOR_ID };
       }
+    } else if (!body.author) {
+      body.author = { name: DEFAULT_AUTHOR_NAME, id: DEFAULT_AUTHOR_ID };
     }
 
-    // Handle image from file upload or imageUrl
     if (req.file) {
-      const serverBase = `${req.protocol}://${req.get('host')}`;
+      const serverBase = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
       body.imageUrl = `${serverBase}/uploads/${req.file.filename}`;
     } else if (!body.imageUrl) {
-      body.imageUrl =
-        'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80';
+      body.imageUrl = DEFAULT_RECIPE_IMAGE;
     }
 
-    // Validation
     if (!body.title || !body.title.trim()) {
       return res.status(400).json({
         success: false,
@@ -203,10 +207,9 @@ exports.createRecipe = async (req, res, next) => {
       });
     }
 
-    // Number conversions
-    body.cookingTime = Number(body.cookingTime) || 30;
-    body.prepTime = Number(body.prepTime) || 10;
-    body.servings = Number(body.servings) || 4;
+    body.cookingTime = Number(body.cookingTime) || DEFAULT_COOKING_TIME;
+    body.prepTime = Number(body.prepTime) || DEFAULT_PREP_TIME;
+    body.servings = Number(body.servings) || DEFAULT_SERVINGS;
 
     let created;
     if (!isMongoConnected()) {
@@ -217,7 +220,7 @@ exports.createRecipe = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Recipe published successfully!',
+      message: 'Recipe created successfully',
       data: created,
     });
   } catch (error) {
@@ -227,7 +230,6 @@ exports.createRecipe = async (req, res, next) => {
 
 // @desc    Update a recipe
 // @route   PUT /api/recipes/:id
-// @access  Public
 exports.updateRecipe = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -242,13 +244,13 @@ exports.updateRecipe = async (req, res, next) => {
     if (body.author && typeof body.author === 'string') {
       try {
         body.author = JSON.parse(body.author);
-      } catch (e) {
-        // preserve existing author
+      } catch {
+        // preserve existing
       }
     }
 
     if (req.file) {
-      const serverBase = `${req.protocol}://${req.get('host')}`;
+      const serverBase = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
       body.imageUrl = `${serverBase}/uploads/${req.file.filename}`;
     }
 
@@ -275,7 +277,7 @@ exports.updateRecipe = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: 'Recipe updated successfully!',
+      message: 'Recipe updated successfully',
       data: updated,
     });
   } catch (error) {
@@ -285,7 +287,6 @@ exports.updateRecipe = async (req, res, next) => {
 
 // @desc    Delete a recipe
 // @route   DELETE /api/recipes/:id
-// @access  Public
 exports.deleteRecipe = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -316,11 +317,10 @@ exports.deleteRecipe = async (req, res, next) => {
 
 // @desc    Like or unlike a recipe
 // @route   POST /api/recipes/:id/like
-// @access  Public
 exports.likeRecipe = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.body.userId || req.headers['x-user-id'] || 'guest_user';
+    const userId = req.body.userId || req.headers['x-user-id'] || DEFAULT_AUTHOR_ID;
 
     let recipe;
     if (!isMongoConnected()) {
@@ -341,11 +341,9 @@ exports.likeRecipe = async (req, res, next) => {
     let isLiked = false;
 
     if (index === -1) {
-      // Like
       likedBy.push(userId);
       isLiked = true;
     } else {
-      // Unlike
       likedBy.splice(index, 1);
       isLiked = false;
     }
@@ -376,13 +374,12 @@ exports.likeRecipe = async (req, res, next) => {
   }
 };
 
-// @desc    Save or unsave (bookmark) a recipe
+// @desc    Save or unsave a recipe
 // @route   POST /api/recipes/:id/save
-// @access  Public
 exports.saveRecipe = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const userId = req.body.userId || req.headers['x-user-id'] || 'guest_user';
+    const userId = req.body.userId || req.headers['x-user-id'] || DEFAULT_AUTHOR_ID;
 
     let recipe;
     if (!isMongoConnected()) {
@@ -403,11 +400,9 @@ exports.saveRecipe = async (req, res, next) => {
     let isSaved = false;
 
     if (index === -1) {
-      // Bookmark
       savedBy.push(userId);
       isSaved = true;
     } else {
-      // Un-bookmark
       savedBy.splice(index, 1);
       isSaved = false;
     }
@@ -434,24 +429,11 @@ exports.saveRecipe = async (req, res, next) => {
 
 // @desc    Get list of available categories
 // @route   GET /api/recipes/categories
-// @access  Public
 exports.getCategories = async (req, res, next) => {
   try {
-    const categories = [
-      'All',
-      'Breakfast',
-      'Lunch',
-      'Dinner',
-      'Dessert',
-      'Vegetarian',
-      'Snack',
-      'Drink',
-      'Appetizer',
-      'Other',
-    ];
     res.status(200).json({
       success: true,
-      data: categories,
+      data: FILTER_CATEGORIES,
     });
   } catch (error) {
     next(error);

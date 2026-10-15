@@ -1,24 +1,10 @@
 import React, { useState } from 'react';
 import { UploadCloud, Link as LinkIcon, X } from 'lucide-react';
-
-const PRESET_IMAGES = [
-  {
-    name: 'Pasta',
-    url: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Salad',
-    url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Steak',
-    url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
-  },
-  {
-    name: 'Dessert',
-    url: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=800&q=80',
-  },
-];
+import {
+  IMAGE_PRESETS,
+  MAX_UPLOAD_SIZE_MB,
+  MAX_UPLOAD_SIZE_BYTES,
+} from '../config/constants';
 
 const ImageUploader = ({
   imageUrl,
@@ -35,6 +21,10 @@ const ImageUploader = ({
     if (file) {
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file (PNG, JPG, WebP).');
+        return;
+      }
+      if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+        alert(`File is too large. Maximum size is ${MAX_IMAGE_FILE_SIZE_MB}MB.`);
         return;
       }
       setImageFile(file);
@@ -121,7 +111,7 @@ const ImageUploader = ({
                 Choose an image or drag and drop
               </span>
               <span className="text-[11px] text-stone-400 mt-0.5">
-                PNG, JPG or WebP up to 5MB
+                PNG, JPG or WebP up to {MAX_IMAGE_FILE_SIZE_MB}MB
               </span>
               <input
                 type="file"
@@ -144,7 +134,7 @@ const ImageUploader = ({
 
           <div className="flex items-center gap-1.5 text-[11px] text-stone-500">
             <span>Presets:</span>
-            {PRESET_IMAGES.map((preset) => (
+            {IMAGE_PRESETS.map((preset) => (
               <button
                 key={preset.name}
                 type="button"

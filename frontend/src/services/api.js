@@ -1,33 +1,30 @@
 import axios from 'axios';
+import { API_BASE_URL, STORAGE_KEYS, DEFAULT_USER } from '../config/constants';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Attach user identifier from localStorage if present
 api.interceptors.request.use((config) => {
-  const userId = localStorage.getItem('savorcraft_user_id') || 'guest_user';
+  const userId = localStorage.getItem(STORAGE_KEYS.USER_ID) || DEFAULT_USER.ID;
   config.headers['x-user-id'] = userId;
   return config;
 });
 
 export const recipeApi = {
-  // GET /api/recipes?search=...
   getRecipes: async (params = {}) => {
     const response = await api.get('/recipes', { params });
     return response.data;
   },
 
-  // GET /api/recipes/:id
   getRecipeById: async (id) => {
     const response = await api.get(`/recipes/${id}`);
     return response.data;
   },
 
-  // POST /api/recipes (supports both JSON and FormData)
   createRecipe: async (data) => {
     const isFormData = data instanceof FormData;
     const response = await api.post('/recipes', data, {
@@ -36,7 +33,6 @@ export const recipeApi = {
     return response.data;
   },
 
-  // PUT /api/recipes/:id (supports both JSON and FormData)
   updateRecipe: async (id, data) => {
     const isFormData = data instanceof FormData;
     const response = await api.put(`/recipes/${id}`, data, {
@@ -45,31 +41,26 @@ export const recipeApi = {
     return response.data;
   },
 
-  // DELETE /api/recipes/:id
   deleteRecipe: async (id) => {
     const response = await api.delete(`/recipes/${id}`);
     return response.data;
   },
 
-  // POST /api/recipes/:id/like
   likeRecipe: async (id, userId) => {
     const response = await api.post(`/recipes/${id}/like`, { userId });
     return response.data;
   },
 
-  // POST /api/recipes/:id/save
   saveRecipe: async (id, userId) => {
     const response = await api.post(`/recipes/${id}/save`, { userId });
     return response.data;
   },
 
-  // GET /api/recipes/categories
   getCategories: async () => {
     const response = await api.get('/recipes/categories');
     return response.data;
   },
 
-  // POST /api/upload
   uploadImage: async (file) => {
     const formData = new FormData();
     formData.append('image', file);
@@ -79,7 +70,6 @@ export const recipeApi = {
     return response.data;
   },
 
-  // GET /api/health
   getHealth: async () => {
     const response = await api.get('/health');
     return response.data;

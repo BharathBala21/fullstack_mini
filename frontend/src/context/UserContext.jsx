@@ -1,24 +1,25 @@
 import React, { createContext, useContext, useState } from 'react';
+import { STORAGE_KEYS, DEFAULT_USER } from '../config/constants';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const savedId = localStorage.getItem('recipe_app_user_id');
-    const savedName = localStorage.getItem('recipe_app_user_name');
+    const savedId = localStorage.getItem(STORAGE_KEYS.USER_ID);
+    const savedName = localStorage.getItem(STORAGE_KEYS.USER_NAME);
     if (savedId && savedName) {
       return { id: savedId, name: savedName };
     }
     const newId = 'user_' + Math.random().toString(36).substring(2, 9);
-    const newName = 'Alex';
-    localStorage.setItem('recipe_app_user_id', newId);
-    localStorage.setItem('recipe_app_user_name', newName);
+    const newName = DEFAULT_USER.NAME;
+    localStorage.setItem(STORAGE_KEYS.USER_ID, newId);
+    localStorage.setItem(STORAGE_KEYS.USER_NAME, newName);
     return { id: newId, name: newName };
   });
 
   const [savedRecipeIds, setSavedRecipeIds] = useState(() => {
     try {
-      const stored = localStorage.getItem('recipe_app_saved');
+      const stored = localStorage.getItem(STORAGE_KEYS.SAVED_RECIPES);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -27,7 +28,7 @@ export const UserProvider = ({ children }) => {
 
   const [likedRecipeIds, setLikedRecipeIds] = useState(() => {
     try {
-      const stored = localStorage.getItem('recipe_app_liked');
+      const stored = localStorage.getItem(STORAGE_KEYS.LIKED_RECIPES);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -49,10 +50,10 @@ export const UserProvider = ({ children }) => {
   };
 
   const updateUserName = (name) => {
-    const cleanName = name.trim() || 'Alex';
+    const cleanName = name.trim() || DEFAULT_USER.NAME;
     const updated = { ...user, name: cleanName };
     setUser(updated);
-    localStorage.setItem('recipe_app_user_name', cleanName);
+    localStorage.setItem(STORAGE_KEYS.USER_NAME, cleanName);
     showToast(`Name updated to ${cleanName}`);
   };
 
@@ -64,7 +65,7 @@ export const UserProvider = ({ children }) => {
       } else {
         next = prev.filter((id) => id !== recipeId);
       }
-      localStorage.setItem('recipe_app_saved', JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEYS.SAVED_RECIPES, JSON.stringify(next));
       return next;
     });
   };
@@ -77,7 +78,7 @@ export const UserProvider = ({ children }) => {
       } else {
         next = prev.filter((id) => id !== recipeId);
       }
-      localStorage.setItem('recipe_app_liked', JSON.stringify(next));
+      localStorage.setItem(STORAGE_KEYS.LIKED_RECIPES, JSON.stringify(next));
       return next;
     });
   };

@@ -97,7 +97,8 @@ const fileStore = {
     }
 
     // Sorting
-    const sort = query.sort || 'newest';
+    const { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER, DEFAULT_SORT_OPTION } = require('../config/constants');
+    const sort = query.sort || DEFAULT_SORT_OPTION;
     if (sort === 'newest') {
       list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else if (sort === 'oldest') {
@@ -109,8 +110,8 @@ const fileStore = {
     }
 
     const total = list.length;
-    const page = Math.max(1, parseInt(query.page) || 1);
-    const limit = Math.max(1, parseInt(query.limit) || 9);
+    const page = Math.max(1, parseInt(query.page) || DEFAULT_PAGE_NUMBER);
+    const limit = Math.max(1, parseInt(query.limit) || DEFAULT_PAGE_SIZE);
     const startIndex = (page - 1) * limit;
     const paginated = list.slice(startIndex, startIndex + limit);
 
