@@ -7,17 +7,13 @@ import {
   Heart,
   Bookmark,
   Share2,
-  ChefHat,
   ArrowLeft,
   Edit,
   Trash2,
-  CheckCircle,
+  Check,
   Plus,
   Minus,
-  Utensils,
   AlertTriangle,
-  Timer,
-  Users,
 } from 'lucide-react';
 
 const RecipeDetail = () => {
@@ -33,20 +29,20 @@ const RecipeDetail = () => {
   const [servingsMultiplier, setServingsMultiplier] = useState(1);
   const [originalServings, setOriginalServings] = useState(4);
 
-  // Checked ingredients for interactive cooking checklist
+  // Checked ingredients for cooking
   const [checkedIngredients, setCheckedIngredients] = useState({});
 
-  // Checked steps for interactive cooking
+  // Checked steps for cooking
   const [completedSteps, setCompletedSteps] = useState({});
 
-  // Like & Save local state
+  // Like & Save state
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Delete confirmation modal
+  // Delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -68,7 +64,7 @@ const RecipeDetail = () => {
         }
       } catch (err) {
         console.error('Error fetching recipe:', err);
-        setError('Failed to load recipe details. Please verify the ID or check backend.');
+        setError('Unable to load recipe details.');
       } finally {
         setLoading(false);
       }
@@ -86,10 +82,9 @@ const RecipeDetail = () => {
         setLikes(res.likes);
         setIsLiked(res.isLiked);
         toggleLocalLiked(recipe._id, res.isLiked);
-        showToast(res.isLiked ? 'Liked recipe!' : 'Unliked recipe', 'info');
       }
     } catch {
-      showToast('Failed to update like status', 'error');
+      showToast('Could not update like', 'error');
     } finally {
       setIsLiking(false);
     }
@@ -103,13 +98,10 @@ const RecipeDetail = () => {
       if (res.success) {
         setIsSaved(res.isSaved);
         toggleLocalSaved(recipe._id, res.isSaved);
-        showToast(
-          res.isSaved ? 'Recipe saved to your bookmarks!' : 'Removed from saved recipes',
-          'info'
-        );
+        showToast(res.isSaved ? 'Saved to cookbook' : 'Removed from saved');
       }
     } catch {
-      showToast('Failed to save recipe', 'error');
+      showToast('Could not save recipe', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -117,7 +109,7 @@ const RecipeDetail = () => {
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    showToast('Recipe URL copied to clipboard!', 'success');
+    showToast('Link copied to clipboard');
   };
 
   const handleDelete = async () => {
@@ -125,11 +117,11 @@ const RecipeDetail = () => {
     try {
       const res = await recipeApi.deleteRecipe(recipe._id);
       if (res.success) {
-        showToast('Recipe deleted successfully', 'success');
+        showToast('Recipe deleted');
         navigate('/');
       }
     } catch {
-      showToast('Failed to delete recipe', 'error');
+      showToast('Could not delete recipe', 'error');
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
@@ -150,236 +142,181 @@ const RecipeDetail = () => {
     }));
   };
 
-  // Helper to scale ingredient amounts
   const scaleAmount = (amountStr) => {
     if (!amountStr || servingsMultiplier === 1) return amountStr;
     const num = parseFloat(amountStr);
     if (isNaN(num)) return amountStr;
-    const scaled = (num * servingsMultiplier).toFixed(2).replace(/\.00$/, '');
-    return scaled;
+    return (num * servingsMultiplier).toFixed(1).replace(/\.0$/, '');
   };
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto py-12 space-y-6 animate-pulse">
-        <div className="h-6 bg-stone-200 rounded w-32" />
-        <div className="aspect-[21/9] bg-stone-200 rounded-3xl" />
-        <div className="h-10 bg-stone-200 rounded w-2/3" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="h-64 bg-stone-200 rounded-2xl" />
-          <div className="md:col-span-2 h-64 bg-stone-200 rounded-2xl" />
-        </div>
+      <div className="max-w-4xl mx-auto py-10 space-y-4 animate-pulse">
+        <div className="h-4 bg-stone-200 rounded w-24" />
+        <div className="h-8 bg-stone-200 rounded w-2/3" />
+        <div className="aspect-[16/9] bg-stone-200 rounded-xl" />
       </div>
     );
   }
 
   if (error || !recipe) {
     return (
-      <div className="max-w-xl mx-auto py-16 text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
-          <AlertTriangle className="w-8 h-8" />
-        </div>
-        <h2 className="font-serif text-2xl font-bold text-stone-900">
-          Recipe Not Found
-        </h2>
-        <p className="text-stone-500 text-sm">
-          {error || "The recipe you are looking for doesn't exist or was removed."}
+      <div className="max-w-md mx-auto py-16 text-center space-y-3">
+        <h2 className="text-lg font-semibold text-stone-900">Recipe not found</h2>
+        <p className="text-stone-500 text-xs">
+          The requested recipe could not be found or has been removed.
         </p>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 bg-stone-900 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-brand-600 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-900 underline mt-2"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Explore</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to recipes</span>
         </Link>
       </div>
     );
   }
 
-  const isAuthor = recipe.author?.id === user.id || recipe.author?.name === user.name;
-
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-12">
-      {/* Back button and quick actions */}
-      <div className="flex items-center justify-between">
+    <article className="max-w-4xl mx-auto space-y-6 pb-16">
+      {/* Back link */}
+      <div>
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-900 text-xs font-semibold px-3 py-2 rounded-lg hover:bg-stone-100 transition"
+          className="inline-flex items-center gap-1.5 text-stone-500 hover:text-stone-900 text-xs font-medium transition"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Recipes</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>All Recipes</span>
         </Link>
-
-        {/* Author Actions (Edit & Delete) */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleShare}
-            className="p-2 text-stone-600 hover:text-stone-900 rounded-xl hover:bg-stone-100 transition"
-            title="Share Recipe"
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
-
-          <Link
-            to={`/recipes/${recipe._id}/edit`}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-stone-700 bg-white border border-stone-200 hover:bg-stone-50 rounded-xl transition shadow-xs"
-          >
-            <Edit className="w-3.5 h-3.5 text-stone-500" />
-            <span>Edit</span>
-          </Link>
-
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Delete</span>
-          </button>
-        </div>
       </div>
 
-      {/* Hero Header Banner */}
-      <div className="relative rounded-3xl overflow-hidden aspect-[16/8] sm:aspect-[21/9] bg-stone-900 shadow-xl border border-stone-200">
-        <img
-          src={recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'}
-          alt={recipe.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent" />
-
-        {/* Floating tags */}
-        <div className="absolute top-4 left-4 flex items-center gap-2">
-          <span className="bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+      {/* Header Info */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+          <span className="font-semibold text-stone-800 uppercase tracking-wide">
             {recipe.category || 'Dinner'}
           </span>
-          <span className="bg-white/90 backdrop-blur-md text-stone-900 text-xs font-bold px-3 py-1 rounded-full shadow-md">
-            {recipe.difficulty || 'Medium'}
-          </span>
+          {recipe.difficulty && (
+            <>
+              <span>•</span>
+              <span>{recipe.difficulty}</span>
+            </>
+          )}
+          <span>•</span>
+          <span>By {recipe.author?.name || 'Chef'}</span>
         </div>
 
-        {/* Hero Bottom Bar with Title & Author */}
-        <div className="absolute bottom-6 left-6 right-6 text-white flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div className="space-y-1.5 max-w-2xl">
-            <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-tight text-white drop-shadow-md">
-              {recipe.title}
-            </h1>
-            <div className="flex items-center gap-3 text-xs text-stone-300">
-              <span className="flex items-center gap-1.5">
-                <ChefHat className="w-4 h-4 text-brand-400" />
-                By {recipe.author?.name || 'Community Chef'}
-              </span>
-              <span>•</span>
-              <span>
-                Added {new Date(recipe.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-              </span>
-            </div>
-          </div>
+        <h1 className="text-2xl sm:text-4xl font-bold text-stone-900 tracking-tight leading-snug">
+          {recipe.title}
+        </h1>
 
-          {/* Action Buttons: Like & Save */}
+        {recipe.description && (
+          <p className="text-stone-600 text-sm leading-relaxed max-w-2xl">
+            {recipe.description}
+          </p>
+        )}
+
+        {/* Action Bar */}
+        <div className="flex items-center justify-between pt-2 border-t border-b border-stone-200 py-2.5">
           <div className="flex items-center gap-2">
             <button
               onClick={handleLike}
               disabled={isLiking}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg transition transform active:scale-95 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
                 isLiked
-                  ? 'bg-rose-500 text-white'
-                  : 'bg-white/90 text-stone-900 hover:bg-white'
+                  ? 'bg-rose-50 border-rose-200 text-rose-700'
+                  : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
               }`}
             >
-              <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-              <span>{likes} Likes</span>
+              <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-current text-rose-500' : ''}`} />
+              <span>{likes} {likes === 1 ? 'Like' : 'Likes'}</span>
             </button>
 
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg transition transform active:scale-95 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
                 isSaved
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-white/90 text-stone-900 hover:bg-white'
+                  ? 'bg-stone-900 border-stone-900 text-white'
+                  : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
               }`}
             >
-              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
               <span>{isSaved ? 'Saved' : 'Save'}</span>
+            </button>
+
+            <button
+              onClick={handleShare}
+              className="p-1.5 text-stone-600 hover:text-stone-900 border border-stone-200 rounded-lg bg-white hover:bg-stone-50 transition"
+              title="Copy recipe link"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/recipes/${recipe._id}/edit`}
+              className="flex items-center gap-1 text-xs text-stone-600 hover:text-stone-900 px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 font-medium transition"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              <span>Edit</span>
+            </Link>
+
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-1 text-xs text-rose-600 hover:text-rose-700 px-2.5 py-1.5 rounded-lg border border-rose-200 bg-rose-50/50 hover:bg-rose-50 font-medium transition"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Quick Metadata Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-stone-200/90 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
-            <Timer className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Prep Time</span>
-            <p className="text-sm font-bold text-stone-800">{recipe.prepTime || 10} mins</p>
-          </div>
-        </div>
+      {/* Cover Image */}
+      <div className="rounded-xl overflow-hidden aspect-[16/9] bg-stone-100 border border-stone-200">
+        <img
+          src={recipe.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'}
+          alt={recipe.title}
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-stone-200/90 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <Clock className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Cook Time</span>
-            <p className="text-sm font-bold text-stone-800">{recipe.cookingTime} mins</p>
-          </div>
+      {/* Metadata Row */}
+      <div className="grid grid-cols-3 gap-3 text-center border border-stone-200 rounded-xl p-3 bg-stone-50/50">
+        <div>
+          <span className="text-[11px] uppercase tracking-wide text-stone-500 font-semibold block">Prep Time</span>
+          <span className="text-sm font-bold text-stone-900">{recipe.prepTime || 10} min</span>
         </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-stone-200/90 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <Users className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Servings</span>
-            <p className="text-sm font-bold text-stone-800">
-              {Math.round(originalServings * servingsMultiplier)} servings
-            </p>
-          </div>
+        <div className="border-x border-stone-200">
+          <span className="text-[11px] uppercase tracking-wide text-stone-500 font-semibold block">Cook Time</span>
+          <span className="text-sm font-bold text-stone-900">{recipe.cookingTime} min</span>
         </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-stone-200/90 shadow-xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
-            <Utensils className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Total Time</span>
-            <p className="text-sm font-bold text-stone-800">
-              {(recipe.prepTime || 10) + (recipe.cookingTime || 0)} mins
-            </p>
-          </div>
+        <div>
+          <span className="text-[11px] uppercase tracking-wide text-stone-500 font-semibold block">Total Time</span>
+          <span className="text-sm font-bold text-stone-900">
+            {(recipe.prepTime || 10) + (recipe.cookingTime || 0)} min
+          </span>
         </div>
       </div>
 
-      {/* Description quote if present */}
-      {recipe.description && (
-        <div className="bg-brand-50/50 border border-brand-100 rounded-2xl p-5 text-stone-700 text-sm leading-relaxed italic">
-          "{recipe.description}"
-        </div>
-      )}
+      {/* Recipe Body */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-2">
+        {/* Ingredients Column */}
+        <div className="md:col-span-5 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+            <h2 className="text-lg font-bold text-stone-900">
+              Ingredients
+            </h2>
 
-      {/* Recipe Body: Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Ingredients Checklist (4 cols) */}
-        <div className="lg:col-span-5 bg-white rounded-3xl border border-stone-200/90 p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-            <div>
-              <h2 className="font-serif text-xl font-bold text-stone-900">
-                Ingredients
-              </h2>
-              <span className="text-xs text-stone-500">
-                {recipe.ingredients?.length || 0} items needed
-              </span>
-            </div>
-
-            {/* Servings Scaler */}
-            <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-xl border border-stone-200">
+            {/* Servings scaler */}
+            <div className="flex items-center gap-1.5 bg-white border border-stone-200 rounded-lg px-2 py-1">
+              <span className="text-xs text-stone-500 font-medium mr-1">Servings:</span>
               <button
                 onClick={() => setServingsMultiplier((prev) => Math.max(0.5, prev - 0.5))}
-                className="w-6 h-6 rounded-lg bg-white text-stone-700 hover:bg-stone-200 flex items-center justify-center shadow-xs transition"
-                title="Decrease servings"
+                className="w-5 h-5 rounded text-stone-600 hover:bg-stone-100 flex items-center justify-center transition"
+                title="Decrease"
               >
                 <Minus className="w-3 h-3" />
               </button>
@@ -388,136 +325,102 @@ const RecipeDetail = () => {
               </span>
               <button
                 onClick={() => setServingsMultiplier((prev) => prev + 0.5)}
-                className="w-6 h-6 rounded-lg bg-white text-stone-700 hover:bg-stone-200 flex items-center justify-center shadow-xs transition"
-                title="Increase servings"
+                className="w-5 h-5 rounded text-stone-600 hover:bg-stone-100 flex items-center justify-center transition"
+                title="Increase"
               >
                 <Plus className="w-3 h-3" />
               </button>
             </div>
           </div>
 
-          <div className="space-y-2.5">
+          <ul className="space-y-2">
             {recipe.ingredients?.map((ing, idx) => {
               const isChecked = checkedIngredients[idx];
               return (
-                <div
+                <li
                   key={idx}
                   onClick={() => toggleIngredientCheck(idx)}
-                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer select-none transition ${
+                  className={`flex items-start gap-2.5 p-2 rounded-lg cursor-pointer transition select-none ${
                     isChecked
-                      ? 'bg-stone-50 border-stone-200 text-stone-400 line-through'
-                      : 'bg-white border-stone-200/80 hover:border-brand-300 text-stone-800 hover:bg-brand-50/20'
+                      ? 'text-stone-400 line-through'
+                      : 'hover:bg-stone-50 text-stone-800'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(isChecked)}
-                      onChange={() => {}}
-                      className="rounded text-brand-600 focus:ring-brand-500 w-4 h-4 cursor-pointer"
-                    />
-                    <span className="text-xs font-semibold">{ing.name}</span>
-                  </div>
-
-                  {(ing.amount || ing.unit) && (
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                        isChecked
-                          ? 'bg-stone-200 text-stone-500'
-                          : 'bg-brand-50 text-brand-700'
-                      }`}
-                    >
+                  <input
+                    type="checkbox"
+                    checked={Boolean(isChecked)}
+                    onChange={() => {}}
+                    className="mt-0.5 rounded text-stone-900 focus:ring-stone-400 w-3.5 h-3.5 cursor-pointer"
+                  />
+                  <span className="text-xs leading-relaxed flex-1">
+                    <strong className="font-semibold text-stone-900 mr-1">
                       {scaleAmount(ing.amount)} {ing.unit}
-                    </span>
-                  )}
-                </div>
+                    </strong>
+                    {ing.name}
+                  </span>
+                </li>
               );
             })}
-          </div>
-
-          <p className="text-[11px] text-stone-400 italic text-center">
-            Tip: Click an ingredient to check it off while preparing.
-          </p>
+          </ul>
         </div>
 
-        {/* Right Column: Steps / Instructions (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl border border-stone-200/90 p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-            <div>
-              <h2 className="font-serif text-xl font-bold text-stone-900">
-                Cooking Instructions
-              </h2>
-              <span className="text-xs text-stone-500">
-                {recipe.steps?.length || 0} steps to deliciousness
-              </span>
-            </div>
-
-            <div className="text-xs font-semibold text-brand-600 bg-brand-50 px-2.5 py-1 rounded-full">
-              {Object.values(completedSteps).filter(Boolean).length} / {recipe.steps?.length || 0} completed
-            </div>
+        {/* Instructions Column */}
+        <div className="md:col-span-7 space-y-4">
+          <div className="pb-2 border-b border-stone-200">
+            <h2 className="text-lg font-bold text-stone-900">
+              Instructions
+            </h2>
           </div>
 
-          <div className="space-y-5">
+          <ol className="space-y-4">
             {recipe.steps?.map((step, idx) => {
               const isDone = completedSteps[idx];
               return (
-                <div
+                <li
                   key={idx}
                   onClick={() => toggleStepCheck(idx)}
-                  className={`p-4 rounded-2xl border transition cursor-pointer select-none flex items-start gap-4 ${
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition select-none ${
                     isDone
-                      ? 'bg-emerald-50/50 border-emerald-200'
-                      : 'bg-stone-50 border-stone-200 hover:border-brand-300'
+                      ? 'bg-stone-50 text-stone-400'
+                      : 'hover:bg-stone-50 text-stone-800'
                   }`}
                 >
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition ${
+                  <span
+                    className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
                       isDone
-                        ? 'bg-emerald-500 text-white shadow-xs'
+                        ? 'bg-stone-200 text-stone-500'
                         : 'bg-stone-900 text-white'
                     }`}
                   >
-                    {isDone ? <CheckCircle className="w-4 h-4" /> : step.stepNumber || idx + 1}
-                  </div>
+                    {isDone ? <Check className="w-3.5 h-3.5" /> : step.stepNumber || idx + 1}
+                  </span>
 
-                  <div className="flex-1 space-y-1">
-                    <p
-                      className={`text-xs sm:text-sm leading-relaxed ${
-                        isDone ? 'text-emerald-900 font-medium' : 'text-stone-700'
-                      }`}
-                    >
-                      {step.instruction}
-                    </p>
-                  </div>
-                </div>
+                  <p className={`text-xs leading-relaxed flex-1 ${isDone ? 'line-through' : ''}`}>
+                    {step.instruction}
+                  </p>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete confirmation modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-200 space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="font-serif text-lg font-bold text-stone-900">
-                Delete "{recipe.title}"?
-              </h3>
-              <p className="text-stone-500 text-xs mt-1 leading-relaxed">
-                Are you sure you want to delete this recipe? This action will remove it from the
-                platform and cannot be undone.
-              </p>
-            </div>
-            <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-xl max-w-sm w-full p-5 shadow-xl border border-stone-200 space-y-3">
+            <h3 className="text-base font-bold text-stone-900">
+              Delete recipe?
+            </h3>
+            <p className="text-stone-600 text-xs leading-relaxed">
+              Are you sure you want to delete "{recipe.title}"? This cannot be undone.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
-                className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-xl transition"
+                className="px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-100 rounded-lg"
               >
                 Cancel
               </button>
@@ -525,16 +428,15 @@ const RecipeDetail = () => {
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-600/20 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>{isDeleting ? 'Deleting...' : 'Confirm Delete'}</span>
+                {isDeleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </article>
   );
 };
 

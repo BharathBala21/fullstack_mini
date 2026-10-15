@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 const StepInputList = ({ steps, onChange }) => {
   const handleInstructionChange = (index, value) => {
@@ -23,93 +23,50 @@ const StepInputList = ({ steps, onChange }) => {
       return;
     }
     const filtered = steps.filter((_, i) => i !== index);
-    // Renumber sequentially
     const renumbered = filtered.map((s, i) => ({ ...s, stepNumber: i + 1 }));
     onChange(renumbered);
   };
 
-  const handleMove = (index, direction) => {
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= steps.length) return;
-    const reordered = [...steps];
-    const [moved] = reordered.splice(index, 1);
-    reordered.splice(targetIndex, 0, moved);
-    // Renumber sequentially
-    const renumbered = reordered.map((s, i) => ({ ...s, stepNumber: i + 1 }));
-    onChange(renumbered);
-  };
-
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <div>
-          <label className="block text-sm font-bold text-stone-800">
-            Preparation Steps <span className="text-rose-500">*</span>
-          </label>
-          <p className="text-xs text-stone-500">
-            Provide ordered step-by-step instructions for cooking this dish.
-          </p>
-        </div>
+        <label className="block text-xs font-semibold text-stone-700">
+          Preparation Steps
+        </label>
         <button
           type="button"
           onClick={handleAdd}
-          className="flex items-center gap-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg text-xs font-semibold border border-brand-200 transition"
+          className="flex items-center gap-1 text-stone-700 hover:text-stone-900 text-xs font-medium px-2 py-1 rounded hover:bg-stone-100 transition"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Add Step</span>
+          <span>Add step</span>
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {steps.map((step, index) => (
-          <div
-            key={index}
-            className="flex items-start gap-3 bg-stone-50 p-3.5 rounded-xl border border-stone-200 group hover:border-brand-300 transition"
-          >
-            {/* Step badge */}
-            <div className="w-7 h-7 rounded-lg bg-stone-900 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+          <div key={index} className="flex items-start gap-2.5">
+            <span className="w-6 h-6 rounded bg-stone-100 text-stone-600 flex items-center justify-center font-semibold text-xs shrink-0 mt-1">
               {step.stepNumber || index + 1}
-            </div>
+            </span>
 
-            {/* Instruction Textarea */}
             <textarea
               rows={2}
-              placeholder={`Step ${index + 1}: Describe the action (e.g. Sauté garlic until fragrant)...`}
+              placeholder={`Step ${index + 1} instructions...`}
               value={step.instruction}
               onChange={(e) => handleInstructionChange(index, e.target.value)}
-              className="flex-1 bg-white border border-stone-200 rounded-lg p-2.5 text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none leading-relaxed"
+              className="flex-1 bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white resize-none leading-relaxed"
               required
             />
 
-            {/* Action buttons (Reorder and Remove) */}
-            <div className="flex flex-col gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => handleMove(index, -1)}
-                disabled={index === 0}
-                className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-20 transition"
-                title="Move up"
-              >
-                <ArrowUp className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleMove(index, 1)}
-                disabled={index === steps.length - 1}
-                className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-20 transition"
-                title="Move down"
-              >
-                <ArrowDown className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleRemove(index)}
-                className="p-1 text-stone-400 hover:text-rose-600 rounded hover:bg-rose-50 transition"
-                title="Remove step"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => handleRemove(index)}
+              className="p-1.5 text-stone-400 hover:text-stone-600 rounded transition mt-1"
+              title="Remove step"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         ))}
       </div>

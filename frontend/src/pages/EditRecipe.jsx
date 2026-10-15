@@ -5,13 +5,7 @@ import { useUser } from '../context/UserContext';
 import IngredientInputList from '../components/IngredientInputList';
 import StepInputList from '../components/StepInputList';
 import ImageUploader from '../components/ImageUploader';
-import {
-  ArrowLeft,
-  Save,
-  AlertCircle,
-  Clock,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 
 const CATEGORIES = [
   'Dinner',
@@ -42,12 +36,10 @@ const EditRecipe = () => {
   const [prepTime, setPrepTime] = useState(15);
   const [servings, setServings] = useState(4);
 
-  // Cover photo
   const [imageUrl, setImageUrl] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
 
-  // Dynamic arrays
   const [ingredients, setIngredients] = useState([]);
   const [steps, setSteps] = useState([]);
 
@@ -82,7 +74,7 @@ const EditRecipe = () => {
         }
       } catch (err) {
         console.error('Error fetching recipe for edit:', err);
-        setErrorMessage('Failed to load recipe data.');
+        setErrorMessage('Unable to load recipe data.');
       } finally {
         setLoading(false);
       }
@@ -147,12 +139,12 @@ const EditRecipe = () => {
 
       const res = await recipeApi.updateRecipe(id, payload);
       if (res.success) {
-        showToast('Recipe updated successfully! ✨', 'success');
+        showToast('Recipe updated');
         navigate(`/recipes/${id}`);
       }
     } catch (err) {
       console.error('Error updating recipe:', err);
-      const msg = err.response?.data?.message || 'Failed to update recipe.';
+      const msg = err.response?.data?.message || 'Could not update recipe.';
       setErrorMessage(msg);
       showToast(msg, 'error');
     } finally {
@@ -162,140 +154,117 @@ const EditRecipe = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto py-16 text-center space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-500 mx-auto" />
-        <p className="text-xs text-stone-500">Loading recipe details for editing...</p>
+      <div className="max-w-2xl mx-auto py-16 text-center text-xs text-stone-500">
+        Loading recipe...
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-16">
+    <div className="max-w-2xl mx-auto space-y-6 pb-16">
       <div>
         <Link
           to={`/recipes/${id}`}
-          className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-900 text-xs font-semibold px-3 py-2 rounded-lg hover:bg-stone-100 transition"
+          className="inline-flex items-center gap-1.5 text-stone-500 hover:text-stone-900 text-xs font-medium transition"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Cancel & Return</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Cancel</span>
         </Link>
       </div>
 
       <div>
-        <h1 className="font-serif text-3xl font-bold text-stone-900">
+        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">
           Edit Recipe
         </h1>
-        <p className="text-xs text-stone-500 mt-1">
-          Update the ingredients, cook time, instructions, or cover photo.
-        </p>
       </div>
 
       {errorMessage && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-800 text-xs font-medium">
-          <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2.5 text-rose-800 text-xs font-medium">
+          <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-stone-200/90 p-6 sm:p-10 shadow-sm space-y-8">
-        {/* Basic Info Section */}
-        <div className="space-y-4">
-          <h2 className="font-serif text-lg font-bold text-stone-900 pb-2 border-b border-stone-100">
-            1. Recipe Overview
-          </h2>
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-stone-200 p-6 space-y-6">
+        <div>
+          <label className="block text-xs font-semibold text-stone-700 mb-1">
+            Title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-stone-700 mb-1">
+            Description
+          </label>
+          <textarea
+            rows={2}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div>
+            <label className="block font-semibold text-stone-700 mb-1">Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-              Recipe Title <span className="text-rose-500">*</span>
-            </label>
+            <label className="block font-semibold text-stone-700 mb-1">Difficulty</label>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+            >
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-stone-700 mb-1">Cook Time (min)</label>
             <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm font-semibold text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition"
+              type="number"
+              min="1"
+              value={cookingTime}
+              onChange={(e) => setCookingTime(e.target.value)}
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-              Description
-            </label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3.5 text-xs font-medium text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white resize-none transition leading-relaxed"
+            <label className="block font-semibold text-stone-700 mb-1">Servings</label>
+            <input
+              type="number"
+              min="1"
+              value={servings}
+              onChange={(e) => setServings(e.target.value)}
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
             />
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-                Difficulty
-              </label>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              >
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-                Cook Time (mins) <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="number"
-                min="1"
-                value={cookingTime}
-                onChange={(e) => setCookingTime(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">
-                Servings
-              </label>
-              <input
-                type="number"
-                min="1"
-                value={servings}
-                onChange={(e) => setServings(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-              />
-            </div>
           </div>
         </div>
 
-        {/* Cover Photo */}
-        <div className="space-y-4 pt-4 border-t border-stone-100">
-          <h2 className="font-serif text-lg font-bold text-stone-900 pb-2 border-b border-stone-100">
-            2. Cover Photo
-          </h2>
+        <div className="pt-2 border-t border-stone-100">
           <ImageUploader
             imageUrl={imageUrl}
             setImageUrl={setImageUrl}
@@ -306,41 +275,31 @@ const EditRecipe = () => {
           />
         </div>
 
-        {/* Dynamic Ingredients */}
-        <div className="space-y-4 pt-4 border-t border-stone-100">
-          <h2 className="font-serif text-lg font-bold text-stone-900 pb-2 border-b border-stone-100">
-            3. Ingredients Array
-          </h2>
+        <div className="pt-2 border-t border-stone-100">
           <IngredientInputList
             ingredients={ingredients}
             onChange={setIngredients}
           />
         </div>
 
-        {/* Dynamic Steps */}
-        <div className="space-y-4 pt-4 border-t border-stone-100">
-          <h2 className="font-serif text-lg font-bold text-stone-900 pb-2 border-b border-stone-100">
-            4. Preparation Steps
-          </h2>
+        <div className="pt-2 border-t border-stone-100">
           <StepInputList steps={steps} onChange={setSteps} />
         </div>
 
-        {/* Submit Bar */}
-        <div className="pt-6 border-t border-stone-100 flex items-center justify-end gap-3">
+        <div className="pt-4 border-t border-stone-100 flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={() => navigate(`/recipes/${id}`)}
-            className="px-5 py-2.5 rounded-xl border border-stone-200 text-stone-600 hover:text-stone-900 text-xs font-semibold hover:bg-stone-50 transition"
+            className="px-3.5 py-2 text-xs font-medium text-stone-600 hover:text-stone-900 transition"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 disabled:bg-stone-300 text-white font-semibold text-xs px-6 py-3 rounded-xl shadow-lg shadow-brand-500/25 transition transform active:scale-95"
+            className="px-4 py-2 bg-stone-900 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
           >
-            <Save className="w-4 h-4" />
-            <span>{submitting ? 'Saving Changes...' : 'Save Changes'}</span>
+            {submitting ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>

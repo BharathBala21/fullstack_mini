@@ -40,7 +40,7 @@ function request(method, path, body = null, headers = {}) {
 }
 
 async function runTests() {
-  console.log('🧪 Starting Recipe Sharing App API Test Suite...\n');
+  console.log('Testing Recipe API endpoints...\n');
   let testCount = 0;
   let passCount = 0;
 
@@ -48,33 +48,32 @@ async function runTests() {
     testCount++;
     if (condition) {
       passCount++;
-      console.log(`  ✅ [PASS] ${desc}`);
+      console.log(`  [PASS] ${desc}`);
     } else {
-      console.error(`  ❌ [FAIL] ${desc}`);
+      console.error(`  [FAIL] ${desc}`);
     }
   }
 
   try {
     // 1. Health check
     const health = await request('GET', '/api/health');
-    assert('GET /api/health returns healthy', health.status === 200 && health.data.status === 'healthy');
+    assert('GET /api/health', health.status === 200 && health.data.status === 'healthy');
 
     // 2. GET /api/recipes
     const all = await request('GET', '/api/recipes');
-    assert('GET /api/recipes returns 200 with recipe list', all.status === 200 && Array.isArray(all.data.data));
-    console.log(`     -> Found ${all.data.total} recipes in store`);
+    assert('GET /api/recipes', all.status === 200 && Array.isArray(all.data.data));
 
     // 3. GET /api/recipes?search=chicken
     const searchRes = await request('GET', '/api/recipes?search=chicken');
-    assert('GET /api/recipes?search=chicken filters correctly', searchRes.status === 200 && searchRes.data.data.length > 0);
+    assert('GET /api/recipes?search=chicken', searchRes.status === 200 && searchRes.data.data.length > 0);
 
     // 4. GET /api/recipes?ingredient=garlic
     const ingRes = await request('GET', '/api/recipes?ingredient=garlic');
-    assert('GET /api/recipes?ingredient=garlic filters by nested ingredient array', ingRes.status === 200 && ingRes.data.data.length > 0);
+    assert('GET /api/recipes?ingredient=garlic', ingRes.status === 200 && ingRes.data.data.length > 0);
 
     // 5. GET /api/recipes/categories
     const catRes = await request('GET', '/api/recipes/categories');
-    assert('GET /api/recipes/categories returns category array', catRes.status === 200 && Array.isArray(catRes.data.data));
+    assert('GET /api/recipes/categories', catRes.status === 200 && Array.isArray(catRes.data.data));
 
     // 6. POST /api/recipes (Create new recipe with nested ingredients and steps)
     const newRecipeData = {
@@ -99,59 +98,46 @@ async function runTests() {
     };
 
     const createRes = await request('POST', '/api/recipes', newRecipeData);
-    assert('POST /api/recipes creates recipe successfully', createRes.status === 201 && createRes.data.success);
+    assert('POST /api/recipes', createRes.status === 201 && createRes.data.success);
     const createdId = createRes.data.data._id;
-    console.log(`     -> Created recipe with ID: ${createdId}`);
 
     // 7. GET /api/recipes/:id
     const singleRes = await request('GET', `/api/recipes/${createdId}`);
-    assert('GET /api/recipes/:id retrieves the created recipe', singleRes.status === 200 && singleRes.data.data.title === newRecipeData.title);
+    assert('GET /api/recipes/:id', singleRes.status === 200 && singleRes.data.data.title === newRecipeData.title);
 
     // 8. PUT /api/recipes/:id (Update)
     const updateRes = await request('PUT', `/api/recipes/${createdId}`, {
       title: 'Updated Crispy Waffles Deluxe',
       cookingTime: 18,
     });
-    assert('PUT /api/recipes/:id updates recipe title and cooking time', updateRes.status === 200 && updateRes.data.data.title === 'Updated Crispy Waffles Deluxe');
+    assert('PUT /api/recipes/:id', updateRes.status === 200 && updateRes.data.data.title === 'Updated Crispy Waffles Deluxe');
 
     // 9. POST /api/recipes/:id/like
     const likeRes = await request('POST', `/api/recipes/${createdId}/like`, { userId: 'tester_123' });
-    assert('POST /api/recipes/:id/like toggles like to true', likeRes.status === 200 && likeRes.data.isLiked === true && likeRes.data.likes >= 1);
+    assert('POST /api/recipes/:id/like', likeRes.status === 200 && likeRes.data.isLiked === true && likeRes.data.likes >= 1);
 
     // 10. POST /api/recipes/:id/save
     const saveRes = await request('POST', `/api/recipes/${createdId}/save`, { userId: 'tester_123' });
-    assert('POST /api/recipes/:id/save toggles save status to true', saveRes.status === 200 && saveRes.data.isSaved === true);
+    assert('POST /api/recipes/:id/save', saveRes.status === 200 && saveRes.data.isSaved === true);
 
     // 11. DELETE /api/recipes/:id
     const deleteRes = await request('DELETE', `/api/recipes/${createdId}`);
-    assert('DELETE /api/recipes/:id deletes the recipe', deleteRes.status === 200 && deleteRes.data.success);
+    assert('DELETE /api/recipes/:id', deleteRes.status === 200 && deleteRes.data.success);
 
     // 12. Verify deleted
     const verifyDeleted = await request('GET', `/api/recipes/${createdId}`);
-    assert('GET /api/recipes/:id returns 404 after deletion', verifyDeleted.status === 404);
+    assert('GET /api/recipes/:id (after delete returns 404)', verifyDeleted.status === 404);
 
-    console.log(`\n🎉 Results: ${passCount} / ${testCount} tests passed!\n`);
+    console.log(`\nResults: ${passCount} / ${testCount} tests passed.\n`);
   } catch (err) {
     console.error('Test execution failed with error:', err);
     process.exit(1);
   }
 }
 
-// Start server child process and run test suite
-const { spawn } = require('child_process');
-const server = spawn('node', ['backend/server.js'], { cwd: __dirname });
-
-server.stdout.on('data', (d) => {
-  const msg = d.toString();
-  if (msg.includes('Recipe Sharing API Server is running on port')) {
-    setTimeout(async () => {
-      await runTests();
-      server.kill();
-      process.exit(0);
-    }, 1000);
-  }
-});
-
-server.stderr.on('data', (d) => {
-  // Ignore minor deprecations
-});
+// Start backend server and run tests
+const app = require('./backend/server.js');
+setTimeout(async () => {
+  await runTests();
+  process.exit(0);
+}, 2500);

@@ -2,218 +2,175 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import {
-  UtensilsCrossed,
+  Utensils,
   Bookmark,
-  BookOpen,
-  PlusCircle,
+  Compass,
+  Plus,
   User,
   Menu,
   X,
-  Edit2,
-  Check,
 } from 'lucide-react';
 
 const Navbar = () => {
   const { user, updateUserName, savedRecipeIds } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isEditingUser, setIsEditingUser] = useState(false);
-  const [nameInput, setNameInput] = useState(user.name);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(user.name);
 
-  const handleSaveName = (e) => {
+  const handleNameSubmit = (e) => {
     e.preventDefault();
-    if (nameInput.trim()) {
-      updateUserName(nameInput.trim());
-      setIsEditingUser(false);
+    if (tempName.trim()) {
+      updateUserName(tempName);
+      setIsEditingName(false);
     }
   };
 
-  const navLinkClasses = ({ isActive }) =>
-    `flex items-center gap-2 text-sm font-semibold transition px-3 py-2 rounded-lg ${
+  const navLinkClass = ({ isActive }) =>
+    `text-sm font-medium transition-colors px-3 py-1.5 rounded-md ${
       isActive
-        ? 'text-brand-600 bg-brand-50'
-        : 'text-stone-600 hover:text-brand-600 hover:bg-stone-100'
+        ? 'text-stone-900 bg-stone-100 font-semibold'
+        : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
     }`;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
-            <UtensilsCrossed className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="font-serif text-xl font-bold tracking-tight text-stone-900 group-hover:text-brand-600 transition">
-              SavorCraft
-            </span>
-            <span className="hidden sm:inline-block ml-2 text-xs font-medium uppercase tracking-wider text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">
-              Recipes
-            </span>
-          </div>
-        </Link>
+    <header className="sticky top-0 z-40 bg-white border-b border-stone-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        {/* Brand */}
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center gap-2 text-stone-900 font-semibold text-lg tracking-tight">
+            <div className="w-8 h-8 rounded-lg bg-stone-900 text-white flex items-center justify-center">
+              <Utensils className="w-4 h-4" />
+            </div>
+            <span>Cookbook</span>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-2">
-          <NavLink to="/" end className={navLinkClasses}>
-            <BookOpen className="w-4 h-4" />
-            <span>Explore</span>
-          </NavLink>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink to="/" end className={navLinkClass}>
+              Explore
+            </NavLink>
 
-          <NavLink to="/saved" className={navLinkClasses}>
-            <Bookmark className="w-4 h-4" />
-            <span>Saved Recipes</span>
-            {savedRecipeIds.length > 0 && (
-              <span className="bg-brand-500 text-white text-xs font-bold px-1.5 py-0.2 rounded-full min-w-[20px] text-center">
-                {savedRecipeIds.length}
-              </span>
-            )}
-          </NavLink>
+            <NavLink to="/saved" className={navLinkClass}>
+              Saved
+              {savedRecipeIds.length > 0 && (
+                <span className="ml-1.5 text-xs bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded-full font-medium">
+                  {savedRecipeIds.length}
+                </span>
+              )}
+            </NavLink>
 
-          <NavLink to="/my-recipes" className={navLinkClasses}>
-            <User className="w-4 h-4" />
-            <span>My Recipes</span>
-          </NavLink>
-        </nav>
+            <NavLink to="/my-recipes" className={navLinkClass}>
+              My Recipes
+            </NavLink>
+          </nav>
+        </div>
 
-        {/* User Identity & CTA */}
+        {/* User profile & Action */}
         <div className="hidden md:flex items-center gap-3">
-          {/* User profile capsule */}
-          <div className="relative">
-            {isEditingUser ? (
-              <form
-                onSubmit={handleSaveName}
-                className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-lg border border-stone-300"
-              >
-                <input
-                  type="text"
-                  value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
-                  className="bg-transparent text-xs font-semibold px-2 py-1 text-stone-800 focus:outline-none w-28"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="p-1 bg-brand-600 text-white rounded hover:bg-brand-700"
-                  title="Save Name"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingUser(false)}
-                  className="p-1 text-stone-500 hover:text-stone-800"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            ) : (
+          {isEditingName ? (
+            <form onSubmit={handleNameSubmit} className="flex items-center gap-1">
+              <input
+                type="text"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                className="text-xs px-2 py-1 border border-stone-300 rounded bg-stone-50 focus:outline-none focus:ring-1 focus:ring-stone-400 w-24"
+                autoFocus
+              />
               <button
-                onClick={() => {
-                  setNameInput(user.name);
-                  setIsEditingUser(true);
-                }}
-                className="flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-full text-xs font-semibold border border-stone-200 transition group"
-                title="Click to edit your display name"
+                type="submit"
+                className="text-xs bg-stone-900 text-white px-2 py-1 rounded hover:bg-stone-800"
               >
-                <div className="w-5 h-5 rounded-full bg-brand-200 text-brand-800 flex items-center justify-center font-bold text-[10px]">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="max-w-[100px] truncate">{user.name}</span>
-                <Edit2 className="w-3 h-3 text-stone-400 group-hover:text-stone-700" />
+                Save
               </button>
-            )}
-          </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingName(false)}
+                className="text-xs text-stone-500 hover:text-stone-800 px-1"
+              >
+                Cancel
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={() => {
+                setTempName(user.name);
+                setIsEditingName(true);
+              }}
+              className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-stone-100 transition"
+              title="Click to change your display name"
+            >
+              <div className="w-6 h-6 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center font-semibold text-[11px]">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium text-stone-700">{user.name}</span>
+            </button>
+          )}
 
-          {/* Publish Recipe Button */}
           <Link
             to="/create"
-            className="flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-brand-500/25 transition-transform hover:-translate-y-0.5 active:translate-y-0"
+            className="flex items-center gap-1.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition"
           >
-            <PlusCircle className="w-4 h-4" />
-            <span>Publish Recipe</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span>New Recipe</span>
           </Link>
         </div>
 
-        {/* Mobile menu toggle */}
+        {/* Mobile menu button */}
         <div className="flex md:hidden items-center gap-2">
           <Link
             to="/create"
-            className="p-2 bg-brand-500 text-white rounded-lg shadow-sm"
-            aria-label="Create Recipe"
+            className="p-2 bg-stone-900 text-white rounded-lg text-xs"
+            aria-label="New Recipe"
           >
-            <PlusCircle className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100"
-            aria-label="Toggle navigation"
+            aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-stone-200 bg-white px-4 pt-3 pb-6 space-y-3">
-          <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-brand-200 text-brand-800 flex items-center justify-center font-bold text-xs">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-sm font-semibold text-stone-800">{user.name}</span>
-            </div>
+        <div className="md:hidden border-t border-stone-200 bg-white px-4 py-3 space-y-2">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 text-xs text-stone-500">
+            <span>Signed in as <strong className="text-stone-800">{user.name}</strong></span>
             <button
               onClick={() => {
-                const newName = prompt('Enter new display name:', user.name);
-                if (newName) updateUserName(newName);
+                const n = prompt('Enter new display name:', user.name);
+                if (n && n.trim()) updateUserName(n.trim());
               }}
-              className="text-xs text-brand-600 font-medium hover:underline"
+              className="text-stone-700 underline"
             >
-              Change Name
+              Change
             </button>
           </div>
-
-          <div className="flex flex-col space-y-1">
-            <NavLink
-              to="/"
-              end
-              onClick={() => setMobileMenuOpen(false)}
-              className={navLinkClasses}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Explore Recipes</span>
-            </NavLink>
-
-            <NavLink
-              to="/saved"
-              onClick={() => setMobileMenuOpen(false)}
-              className={navLinkClasses}
-            >
-              <Bookmark className="w-4 h-4" />
-              <span>Saved Recipes ({savedRecipeIds.length})</span>
-            </NavLink>
-
-            <NavLink
-              to="/my-recipes"
-              onClick={() => setMobileMenuOpen(false)}
-              className={navLinkClasses}
-            >
-              <User className="w-4 h-4" />
-              <span>My Recipes</span>
-            </NavLink>
-          </div>
-
-          <div className="pt-2">
-            <Link
-              to="/create"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 bg-brand-600 text-white py-2.5 rounded-xl font-semibold text-sm shadow-md"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Publish a Recipe</span>
-            </Link>
-          </div>
+          <NavLink
+            to="/"
+            end
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-sm font-medium py-1.5 text-stone-700"
+          >
+            Explore
+          </NavLink>
+          <NavLink
+            to="/saved"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-sm font-medium py-1.5 text-stone-700"
+          >
+            Saved Recipes ({savedRecipeIds.length})
+          </NavLink>
+          <NavLink
+            to="/my-recipes"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-sm font-medium py-1.5 text-stone-700"
+          >
+            My Recipes
+          </NavLink>
         </div>
       )}
     </header>

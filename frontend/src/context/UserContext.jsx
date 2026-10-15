@@ -1,26 +1,24 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  // Initialize user ID and Name from localStorage or default
   const [user, setUser] = useState(() => {
-    const savedId = localStorage.getItem('savorcraft_user_id');
-    const savedName = localStorage.getItem('savorcraft_user_name');
+    const savedId = localStorage.getItem('recipe_app_user_id');
+    const savedName = localStorage.getItem('recipe_app_user_name');
     if (savedId && savedName) {
       return { id: savedId, name: savedName };
     }
     const newId = 'user_' + Math.random().toString(36).substring(2, 9);
-    const newName = 'Chef Foodie';
-    localStorage.setItem('savorcraft_user_id', newId);
-    localStorage.setItem('savorcraft_user_name', newName);
+    const newName = 'Alex';
+    localStorage.setItem('recipe_app_user_id', newId);
+    localStorage.setItem('recipe_app_user_name', newName);
     return { id: newId, name: newName };
   });
 
-  // Track liked and saved recipe IDs for quick local UI state
   const [savedRecipeIds, setSavedRecipeIds] = useState(() => {
     try {
-      const stored = localStorage.getItem('savorcraft_saved_recipes');
+      const stored = localStorage.getItem('recipe_app_saved');
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -29,14 +27,13 @@ export const UserProvider = ({ children }) => {
 
   const [likedRecipeIds, setLikedRecipeIds] = useState(() => {
     try {
-      const stored = localStorage.getItem('savorcraft_liked_recipes');
+      const stored = localStorage.getItem('recipe_app_liked');
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
     }
   });
 
-  // Toast notifications state
   const [toasts, setToasts] = useState([]);
 
   const showToast = (message, type = 'success') => {
@@ -44,7 +41,7 @@ export const UserProvider = ({ children }) => {
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3500);
+    }, 3000);
   };
 
   const removeToast = (id) => {
@@ -52,10 +49,11 @@ export const UserProvider = ({ children }) => {
   };
 
   const updateUserName = (name) => {
-    const updated = { ...user, name: name.trim() || 'Chef User' };
+    const cleanName = name.trim() || 'Alex';
+    const updated = { ...user, name: cleanName };
     setUser(updated);
-    localStorage.setItem('savorcraft_user_name', updated.name);
-    showToast(`Display name updated to "${updated.name}"`);
+    localStorage.setItem('recipe_app_user_name', cleanName);
+    showToast(`Name updated to ${cleanName}`);
   };
 
   const toggleLocalSaved = (recipeId, isSaved) => {
@@ -66,7 +64,7 @@ export const UserProvider = ({ children }) => {
       } else {
         next = prev.filter((id) => id !== recipeId);
       }
-      localStorage.setItem('savorcraft_saved_recipes', JSON.stringify(next));
+      localStorage.setItem('recipe_app_saved', JSON.stringify(next));
       return next;
     });
   };
@@ -79,7 +77,7 @@ export const UserProvider = ({ children }) => {
       } else {
         next = prev.filter((id) => id !== recipeId);
       }
-      localStorage.setItem('savorcraft_liked_recipes', JSON.stringify(next));
+      localStorage.setItem('recipe_app_liked', JSON.stringify(next));
       return next;
     });
   };
