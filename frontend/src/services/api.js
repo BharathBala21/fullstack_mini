@@ -3,14 +3,16 @@ import { API_BASE_URL, STORAGE_KEYS, DEFAULT_USER } from '../config/constants';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 api.interceptors.request.use((config) => {
   const userId = localStorage.getItem(STORAGE_KEYS.USER_ID) || DEFAULT_USER.ID;
-  config.headers['x-user-id'] = userId;
+  if (userId) {
+    config.headers['x-user-id'] = userId;
+  }
+  if (config.data instanceof FormData && config.headers) {
+    delete config.headers['Content-Type'];
+  }
   return config;
 });
 
@@ -26,18 +28,12 @@ export const recipeApi = {
   },
 
   createRecipe: async (data) => {
-    const isFormData = data instanceof FormData;
-    const response = await api.post('/recipes', data, {
-      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
-    });
+    const response = await api.post('/recipes', data);
     return response.data;
   },
 
   updateRecipe: async (id, data) => {
-    const isFormData = data instanceof FormData;
-    const response = await api.put(`/recipes/${id}`, data, {
-      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
-    });
+    const response = await api.put(`/recipes/${id}`, data);
     return response.data;
   },
 

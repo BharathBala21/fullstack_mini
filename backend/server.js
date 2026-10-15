@@ -69,9 +69,12 @@ app.use(errorHandler);
 const { DEFAULT_PORT } = require('./config/constants');
 const PORT = process.env.PORT || DEFAULT_PORT;
 
-const server = app.listen(PORT, () => {
-  console.log(`Recipe API running on port ${PORT}`);
-});
+let server;
+if (require.main === module) {
+  server = app.listen(PORT, () => {
+    console.log(`Recipe API running on port ${PORT}`);
+  });
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
