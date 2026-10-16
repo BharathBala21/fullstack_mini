@@ -11,6 +11,8 @@ import CreateRecipe from './pages/CreateRecipe';
 import EditRecipe from './pages/EditRecipe';
 import SavedRecipes from './pages/SavedRecipes';
 import MyRecipes from './pages/MyRecipes';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
               <Route path="/create" element={<CreateRecipe />} />
               <Route path="/saved" element={<SavedRecipes />} />
               <Route path="/my-recipes" element={<MyRecipes />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

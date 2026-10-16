@@ -10,7 +10,7 @@ export const UserProvider = ({ children }) => {
     if (savedId && savedName) {
       return { id: savedId, name: savedName };
     }
-    const newId = 'user_' + Math.random().toString(36).substring(2, 9);
+    const newId = 'user_' + Math.random().toString(36).substring(2, 8);
     const newName = DEFAULT_USER.NAME;
     localStorage.setItem(STORAGE_KEYS.USER_ID, newId);
     localStorage.setItem(STORAGE_KEYS.USER_NAME, newName);
@@ -49,22 +49,39 @@ export const UserProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const updateUserName = (name) => {
+  const login = (name) => {
     const cleanName = name.trim() || DEFAULT_USER.NAME;
-    const updated = { ...user, name: cleanName };
+    const cleanId = 'user_' + cleanName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const updated = { id: cleanId, name: cleanName };
     setUser(updated);
+    localStorage.setItem(STORAGE_KEYS.USER_ID, cleanId);
     localStorage.setItem(STORAGE_KEYS.USER_NAME, cleanName);
-    showToast(`Name updated to ${cleanName}`);
+    showToast(`Signed in as ${cleanName}`);
+  };
+
+  const signup = (name, email = '') => {
+    const cleanName = name.trim() || DEFAULT_USER.NAME;
+    const cleanId = 'user_' + cleanName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const updated = { id: cleanId, name: cleanName, email: email.trim() };
+    setUser(updated);
+    localStorage.setItem(STORAGE_KEYS.USER_ID, cleanId);
+    localStorage.setItem(STORAGE_KEYS.USER_NAME, cleanName);
+    showToast(`Welcome to Cookbook, ${cleanName}!`);
+  };
+
+  const logout = () => {
+    const guestUser = { id: 'user_guest', name: 'Guest' };
+    setUser(guestUser);
+    localStorage.setItem(STORAGE_KEYS.USER_ID, guestUser.id);
+    localStorage.setItem(STORAGE_KEYS.USER_NAME, guestUser.name);
+    showToast('Signed out');
   };
 
   const toggleLocalSaved = (recipeId, isSaved) => {
     setSavedRecipeIds((prev) => {
-      let next;
-      if (isSaved) {
-        next = prev.includes(recipeId) ? prev : [...prev, recipeId];
-      } else {
-        next = prev.filter((id) => id !== recipeId);
-      }
+      const next = isSaved
+        ? prev.includes(recipeId) ? prev : [...prev, recipeId]
+        : prev.filter((id) => id !== recipeId);
       localStorage.setItem(STORAGE_KEYS.SAVED_RECIPES, JSON.stringify(next));
       return next;
     });
@@ -72,12 +89,9 @@ export const UserProvider = ({ children }) => {
 
   const toggleLocalLiked = (recipeId, isLiked) => {
     setLikedRecipeIds((prev) => {
-      let next;
-      if (isLiked) {
-        next = prev.includes(recipeId) ? prev : [...prev, recipeId];
-      } else {
-        next = prev.filter((id) => id !== recipeId);
-      }
+      const next = isLiked
+        ? prev.includes(recipeId) ? prev : [...prev, recipeId]
+        : prev.filter((id) => id !== recipeId);
       localStorage.setItem(STORAGE_KEYS.LIKED_RECIPES, JSON.stringify(next));
       return next;
     });
@@ -87,7 +101,9 @@ export const UserProvider = ({ children }) => {
     <UserContext.Provider
       value={{
         user,
-        updateUserName,
+        login,
+        signup,
+        logout,
         savedRecipeIds,
         likedRecipeIds,
         toggleLocalSaved,

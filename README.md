@@ -110,13 +110,3 @@ npm run test:api
 
 ---
 
-## CUBRICS Implementation Checklist
-
-| Day | Plan Milestone | Status | Implementation Details |
-|---|---|---|---|
-| **Day 1** | Define features, MongoDB schemas, and REST endpoint contract | Completed | Mongoose schema with nested `ingredients` and `steps` in `backend/models/Recipe.js`; full REST API contract defined in `backend/routes/recipeRoutes.js`. |
-| **Day 2** | Build Express server, database connection, and JSON APIs | Completed | Express server (`backend/server.js`) with MongoDB Mongoose connection and fail-safe JSON datastore fallback (`backend/models/recipeStore.js`); CORS, Morgan logging, and error handling. |
-| **Day 3** | Build React pages, forms, API calls with Axios | Completed | React 18 + Vite frontend with modular pages (`Home`, `RecipeDetail`, `CreateRecipe`, `EditRecipe`, `SavedRecipes`, `MyRecipes`); Axios client in `frontend/src/services/api.js`. |
-| **Day 4** | Complete CRUD flows, validation, loading/error states | Completed | Full CRUD operations (Create with Multer upload, Read with search & ingredient filters, Update existing recipes, Delete with confirmation modal); interactive checklists, serving scalers, and loading skeletons. |
-| **Day 5** | Test APIs, fix bugs, write README, deploy frontend and backend | Completed | 12 automated API tests in `test-api.js`; image upload handling verified; Vite production build configured (`npm run build`). |
-

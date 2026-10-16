@@ -1,29 +1,13 @@
 import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import {
-  Utensils,
-  Bookmark,
-  Compass,
-  Plus,
-  User,
-  Menu,
-  X,
-} from 'lucide-react';
+import { Utensils, Plus, Menu, X, LogIn, LogOut } from 'lucide-react';
 
 const Navbar = () => {
-  const { user, updateUserName, savedRecipeIds } = useUser();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(user.name);
+  const { user, logout, savedRecipeIds } = useUser();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleNameSubmit = (e) => {
-    e.preventDefault();
-    if (tempName.trim()) {
-      updateUserName(tempName);
-      setIsEditingName(false);
-    }
-  };
+  const isLoggedIn = user && user.id !== 'user_guest';
 
   const navLinkClass = ({ isActive }) =>
     `text-sm font-medium transition-colors px-3 py-1.5 rounded-md ${
@@ -65,45 +49,32 @@ const Navbar = () => {
           </nav>
         </div>
 
-        {/* User profile & Action */}
+        {/* User profile & Actions */}
         <div className="hidden md:flex items-center gap-3">
-          {isEditingName ? (
-            <form onSubmit={handleNameSubmit} className="flex items-center gap-1">
-              <input
-                type="text"
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                className="text-xs px-2 py-1 border border-stone-300 rounded bg-stone-50 focus:outline-none focus:ring-1 focus:ring-stone-400 w-24"
-                autoFocus
-              />
-              <button
-                type="submit"
-                className="text-xs bg-stone-900 text-white px-2 py-1 rounded hover:bg-stone-800"
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditingName(false)}
-                className="text-xs text-stone-500 hover:text-stone-800 px-1"
-              >
-                Cancel
-              </button>
-            </form>
-          ) : (
-            <button
-              onClick={() => {
-                setTempName(user.name);
-                setIsEditingName(true);
-              }}
-              className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1.5 px-2 py-1 rounded hover:bg-stone-100 transition"
-              title="Click to change your display name"
-            >
-              <div className="w-6 h-6 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center font-semibold text-[11px]">
-                {user.name.charAt(0).toUpperCase()}
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-2 py-1 text-xs text-stone-700 font-medium">
+                <div className="w-6 h-6 rounded-full bg-stone-200 text-stone-700 flex items-center justify-center font-semibold text-[11px]">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <span>{user.name}</span>
               </div>
-              <span className="font-medium text-stone-700">{user.name}</span>
-            </button>
+              <button
+                onClick={logout}
+                className="text-xs text-stone-500 hover:text-rose-600 px-2 py-1 rounded hover:bg-stone-50 transition"
+                title="Sign out"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center gap-1 text-xs text-stone-700 hover:text-stone-900 font-medium px-2.5 py-1.5 rounded-md hover:bg-stone-100 transition"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Sign in</span>
+            </Link>
           )}
 
           <Link
@@ -125,48 +96,61 @@ const Navbar = () => {
             <Plus className="w-4 h-4" />
           </Link>
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMobileOpen(!mobileOpen)}
             className="p-2 text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100"
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile menu dropdown */}
-      {mobileMenuOpen && (
+      {mobileOpen && (
         <div className="md:hidden border-t border-stone-200 bg-white px-4 py-3 space-y-2">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-100 text-xs text-stone-500">
-            <span>Signed in as <strong className="text-stone-800">{user.name}</strong></span>
-            <button
-              onClick={() => {
-                const n = prompt('Enter new display name:', user.name);
-                if (n && n.trim()) updateUserName(n.trim());
-              }}
-              className="text-stone-700 underline"
-            >
-              Change
-            </button>
+          <div className="flex items-center justify-between pb-2 border-b border-stone-100 text-xs text-stone-600">
+            {isLoggedIn ? (
+              <>
+                <span>Signed in as <strong className="text-stone-900">{user.name}</strong></span>
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileOpen(false);
+                  }}
+                  className="text-rose-600 font-medium underline"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="text-stone-900 font-semibold underline flex items-center gap-1"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign in</span>
+              </Link>
+            )}
           </div>
           <NavLink
             to="/"
             end
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => setMobileOpen(false)}
             className="block text-sm font-medium py-1.5 text-stone-700"
           >
             Explore
           </NavLink>
           <NavLink
             to="/saved"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => setMobileOpen(false)}
             className="block text-sm font-medium py-1.5 text-stone-700"
           >
             Saved Recipes ({savedRecipeIds.length})
           </NavLink>
           <NavLink
             to="/my-recipes"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => setMobileOpen(false)}
             className="block text-sm font-medium py-1.5 text-stone-700"
           >
             My Recipes
