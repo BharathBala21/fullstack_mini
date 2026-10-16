@@ -197,10 +197,10 @@ const CreateRecipe = () => {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
               {categories.map((c) => (
-                <option key={c} value={c}>
+                <option key={c} value={c} className="bg-white text-stone-900">
                   {c}
                 </option>
               ))}
@@ -212,10 +212,10 @@ const CreateRecipe = () => {
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
               {RECIPE_DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
+                <option key={d} value={d} className="bg-white text-stone-900">
                   {d}
                 </option>
               ))}

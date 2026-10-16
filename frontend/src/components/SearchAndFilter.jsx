@@ -121,10 +121,10 @@ const SearchAndFilter = ({
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
               {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <option key={opt.value} value={opt.value} className="bg-white text-stone-900">
                   {opt.label}
                 </option>
               ))}
@@ -139,10 +139,10 @@ const SearchAndFilter = ({
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
               {DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
+                <option key={d} value={d} className="bg-white text-stone-900">
                   {d}
                 </option>
               ))}
@@ -160,10 +160,10 @@ const SearchAndFilter = ({
             <select
               value={maxTime}
               onChange={(e) => setMaxTime(e.target.value)}
-              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+              className="w-full bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400"
             >
               {COOK_TIME_PRESETS.map((preset) => (
-                <option key={preset.value} value={preset.value}>
+                <option key={preset.value} value={preset.value} className="bg-white text-stone-900">
                   {preset.label}
                 </option>
               ))}

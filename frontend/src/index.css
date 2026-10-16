@@ -3,7 +3,35 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color-scheme: light;
+    background-color: #fafaf9; /* stone-50 */
+    color: #1c1917; /* stone-900 */
+  }
+
+  /* Force all select and option elements to have dark text on crisp light background across all OS / GTK themes */
+  select {
+    color-scheme: light !important;
+    color: #1c1917 !important;
+    background-color: #fafaf9 !important;
+  }
+
+  select option,
+  optgroup option,
+  datalist option {
+    background-color: #ffffff !important;
+    color: #1c1917 !important;
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  select option:disabled {
+    color: #a8a29e !important; /* stone-400 */
   }
 }

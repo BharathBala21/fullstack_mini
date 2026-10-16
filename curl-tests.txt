@@ -1,0 +1,117 @@
+
+
+1. HEALTH CHECK & DIAGNOSTICS
+--------------------------------------------------------------------------------
+curl -s http://localhost:5000/api/health
+
+
+2. LIST ALL RECIPES (PAGINATED)
+--------------------------------------------------------------------------------
+curl -s "http://localhost:5000/api/recipes?page=1&limit=5"
+
+
+3. FULL-TEXT SEARCH (TITLE / DESCRIPTION / INGREDIENTS)
+--------------------------------------------------------------------------------
+curl -s "http://localhost:5000/api/recipes?search=chicken"
+
+
+4. SEARCH SPECIFICALLY BY INGREDIENT
+--------------------------------------------------------------------------------
+curl -s "http://localhost:5000/api/recipes?ingredient=garlic"
+
+
+5. FILTER BY CATEGORY, DIFFICULTY & MAX COOK TIME
+--------------------------------------------------------------------------------
+curl -s "http://localhost:5000/api/recipes?category=Dinner&difficulty=Medium&maxTime=30"
+
+
+6. GET CATEGORIES LIST
+--------------------------------------------------------------------------------
+curl -s http://localhost:5000/api/recipes/categories
+
+
+7. CREATE RECIPE VIA JSON (WITH IMAGE URL)
+--------------------------------------------------------------------------------
+curl -s -X POST http://localhost:5000/api/recipes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Avocado & Tomato Toast",
+    "description": "Crispy sourdough toast topped with smashed avocado, cherry tomatoes, and red pepper flakes.",
+    "category": "Breakfast",
+    "difficulty": "Easy",
+    "cookingTime": 10,
+    "prepTime": 5,
+    "servings": 2,
+    "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+    "ingredients": [
+      { "name": "Sourdough bread", "amount": "2", "unit": "slices" },
+      { "name": "Ripe avocado", "amount": "1", "unit": "" },
+      { "name": "Cherry tomatoes", "amount": "6", "unit": "halved" },
+      { "name": "Red pepper flakes", "amount": "1", "unit": "pinch" }
+    ],
+    "steps": [
+      { "stepNumber": 1, "instruction": "Toast sourdough slices until golden and crisp." },
+      { "stepNumber": 2, "instruction": "Mash avocado with a pinch of salt and spread onto toast." },
+      { "stepNumber": 3, "instruction": "Top with sliced cherry tomatoes and red pepper flakes." }
+    ],
+    "author": { "name": "Chef Alex", "id": "user_alex_1" }
+  }'
+
+
+8. CREATE RECIPE WITH LOCAL FILE UPLOAD (MULTIPART / MULTER)
+--------------------------------------------------------------------------------
+# Replace /path/to/your/image.jpg with an actual image on your computer
+curl -s -X POST http://localhost:5000/api/recipes \
+  -F "title=Homemade Pesto Pasta" \
+  -F "description=Fresh basil pesto tossed with al dente penne" \
+  -F "category=Dinner" \
+  -F "difficulty=Easy" \
+  -F "cookingTime=15" \
+  -F "prepTime=10" \
+  -F "servings=4" \
+  -F 'ingredients=[{"name":"Penne pasta","amount":"400","unit":"g"},{"name":"Basil pesto","amount":"1","unit":"cup"}]' \
+  -F 'steps=[{"stepNumber":1,"instruction":"Boil pasta in salted water."},{"stepNumber":2,"instruction":"Drain and stir in pesto."}]' \
+  -F 'author={"name":"Chef Alex","id":"user_alex_1"}' \
+  -F "image=@/path/to/your/image.jpg"
+
+
+9. GET SINGLE RECIPE BY ID
+--------------------------------------------------------------------------------
+# Replace <RECIPE_ID> with an id (e.g. from the list or create response)
+curl -s http://localhost:5000/api/recipes/<RECIPE_ID>
+
+
+10. UPDATE RECIPE (PUT)
+--------------------------------------------------------------------------------
+curl -s -X PUT http://localhost:5000/api/recipes/<RECIPE_ID> \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Avocado & Tomato Toast (Deluxe Edition)",
+    "cookingTime": 12,
+    "difficulty": "Easy"
+  }'
+
+
+11. TOGGLE LIKE STATUS
+--------------------------------------------------------------------------------
+curl -s -X POST http://localhost:5000/api/recipes/<RECIPE_ID>/like \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "user_alex_1"}'
+
+
+12. TOGGLE SAVE / BOOKMARK STATUS
+--------------------------------------------------------------------------------
+curl -s -X POST http://localhost:5000/api/recipes/<RECIPE_ID>/save \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "user_alex_1"}'
+
+
+13. STANDALONE IMAGE UPLOAD ENDPOINT
+--------------------------------------------------------------------------------
+curl -s -X POST http://localhost:5000/api/upload \
+  -F "image=@/path/to/your/image.jpg"
+
+
+14. DELETE RECIPE
+--------------------------------------------------------------------------------
+curl -s -X DELETE http://localhost:5000/api/recipes/<RECIPE_ID>
