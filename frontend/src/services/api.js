@@ -18,57 +18,55 @@ api.interceptors.request.use((config) => {
 
 export const recipeApi = {
   getRecipes: async (params = {}) => {
-    const response = await api.get('/recipes', { params });
-    return response.data;
+    const res = await api.get('/recipes', { params });
+    return res.data;
   },
 
   getRecipeById: async (id) => {
-    const response = await api.get(`/recipes/${id}`);
-    return response.data;
+    const res = await api.get(`/recipes/${id}`);
+    return res.data;
   },
 
   createRecipe: async (data) => {
-    const response = await api.post('/recipes', data);
-    return response.data;
+    const res = await api.post('/recipes', data);
+    return res.data;
   },
 
   updateRecipe: async (id, data) => {
-    const response = await api.put(`/recipes/${id}`, data);
-    return response.data;
+    const res = await api.put(`/recipes/${id}`, data);
+    return res.data;
   },
 
   deleteRecipe: async (id) => {
-    const response = await api.delete(`/recipes/${id}`);
-    return response.data;
+    const res = await api.delete(`/recipes/${id}`);
+    return res.data;
   },
 
   likeRecipe: async (id, userId) => {
-    const response = await api.post(`/recipes/${id}/like`, { userId });
-    return response.data;
+    const res = await api.post(`/recipes/${id}/like`, { userId });
+    return res.data;
   },
 
   saveRecipe: async (id, userId) => {
-    const response = await api.post(`/recipes/${id}/save`, { userId });
-    return response.data;
+    const res = await api.post(`/recipes/${id}/save`, { userId });
+    return res.data;
   },
 
   getCategories: async () => {
-    const response = await api.get('/recipes/categories');
-    return response.data;
+    const res = await api.get('/recipes/categories');
+    return res.data;
   },
 
   uploadImage: async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const response = await api.post('/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
+    const res = await api.post('/upload', formData);
+    return res.data;
   },
 
   getHealth: async () => {
-    const response = await api.get('/health');
-    return response.data;
+    const res = await api.get('/health');
+    return res.data;
   },
 };
 

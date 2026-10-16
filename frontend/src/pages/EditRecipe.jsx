@@ -19,8 +19,8 @@ const EditRecipe = () => {
 
   const [categories, setCategories] = useState(RECIPE_CATEGORIES);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -79,11 +79,11 @@ const EditRecipe = () => {
               : [{ stepNumber: 1, instruction: '' }]
           );
         } else {
-          setErrorMessage('Recipe not found.');
+          setError('Recipe not found.');
         }
       } catch (err) {
         console.error('Error fetching recipe for edit:', err);
-        setErrorMessage('Unable to load recipe data.');
+        setError('Unable to load recipe data.');
       } finally {
         setLoading(false);
       }
@@ -94,26 +94,26 @@ const EditRecipe = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
+    setError('');
 
     if (!title.trim()) {
-      setErrorMessage('Recipe title is required.');
+      setError('Recipe title is required.');
       return;
     }
 
     const validIngredients = ingredients.filter((ing) => ing.name.trim() !== '');
     if (validIngredients.length === 0) {
-      setErrorMessage('Please include at least one ingredient.');
+      setError('Please include at least one ingredient.');
       return;
     }
 
     const validSteps = steps.filter((s) => s.instruction.trim() !== '');
     if (validSteps.length === 0) {
-      setErrorMessage('Please include at least one instruction step.');
+      setError('Please include at least one instruction step.');
       return;
     }
 
-    setSubmitting(true);
+    setSaving(true);
 
     try {
       let payload;
@@ -154,10 +154,10 @@ const EditRecipe = () => {
     } catch (err) {
       console.error('Error updating recipe:', err);
       const msg = err.response?.data?.message || 'Could not update recipe.';
-      setErrorMessage(msg);
+      setError(msg);
       showToast(msg, 'error');
     } finally {
-      setSubmitting(false);
+      setSaving(false);
     }
   };
 
@@ -187,10 +187,10 @@ const EditRecipe = () => {
         </h1>
       </div>
 
-      {errorMessage && (
+      {error && (
         <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2.5 text-rose-800 text-xs font-medium">
           <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
-          <span>{errorMessage}</span>
+          <span>{error}</span>
         </div>
       )}
 
@@ -307,10 +307,10 @@ const EditRecipe = () => {
           </button>
           <button
             type="submit"
-            disabled={submitting}
+            disabled={saving}
             className="px-4 py-2 bg-stone-900 hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
           >
-            {submitting ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>

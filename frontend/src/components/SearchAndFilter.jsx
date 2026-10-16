@@ -12,21 +12,17 @@ const CATEGORIES = [
 ];
 
 const SearchAndFilter = ({
-  searchQuery,
-  setSearchQuery,
-  ingredientQuery,
-  setIngredientQuery,
-  selectedCategory,
-  setSelectedCategory,
+  search,
+  setSearch,
+  ingredient,
+  setIngredient,
+  category,
+  setCategory,
   sort,
   setSort,
-  onReset,
+  onClear,
 }) => {
-  const hasFilters =
-    Boolean(searchQuery) ||
-    Boolean(ingredientQuery) ||
-    selectedCategory !== 'All' ||
-    sort !== 'newest';
+  const hasFilters = Boolean(search) || Boolean(ingredient) || category !== 'All' || sort !== 'newest';
 
   return (
     <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
@@ -36,14 +32,14 @@ const SearchAndFilter = ({
           <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search recipes..."
             className="w-full pl-9 pr-8 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white"
           />
-          {searchQuery && (
+          {search && (
             <button
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearch('')}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
             >
               <X className="w-3.5 h-3.5" />
@@ -54,14 +50,14 @@ const SearchAndFilter = ({
         <div className="relative sm:col-span-4">
           <input
             type="text"
-            value={ingredientQuery}
-            onChange={(e) => setIngredientQuery(e.target.value)}
+            value={ingredient}
+            onChange={(e) => setIngredient(e.target.value)}
             placeholder="Filter by ingredient (e.g. garlic)..."
             className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-400 focus:bg-white"
           />
-          {ingredientQuery && (
+          {ingredient && (
             <button
-              onClick={() => setIngredientQuery('')}
+              onClick={() => setIngredient('')}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
             >
               <X className="w-3.5 h-3.5" />
@@ -86,24 +82,24 @@ const SearchAndFilter = ({
       {/* Category tabs */}
       <div className="flex items-center justify-between pt-1 border-t border-stone-100">
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-          {CATEGORIES.map((cat) => (
+          {CATEGORIES.map((c) => (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              key={c}
+              onClick={() => setCategory(c)}
               className={`px-3 py-1 rounded-md text-xs font-medium whitespace-nowrap transition ${
-                selectedCategory.toLowerCase() === cat.toLowerCase()
+                category.toLowerCase() === c.toLowerCase()
                   ? 'bg-stone-900 text-white'
                   : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
             >
-              {cat}
+              {c}
             </button>
           ))}
         </div>
 
         {hasFilters && (
           <button
-            onClick={onReset}
+            onClick={onClear}
             className="text-xs text-stone-500 hover:text-stone-900 font-medium underline shrink-0 ml-2"
           >
             Clear
