@@ -138,7 +138,19 @@ async function runTests() {
 
 // Start backend server and run tests
 const app = require('./backend/server.js');
-setTimeout(async () => {
+
+const server = app.listen(PORT, async () => {
   await runTests();
+  server.close();
   process.exit(0);
-}, 2500);
+});
+
+server.on('error', async (err) => {
+  if (err.code === 'EADDRINUSE') {
+    await runTests();
+    process.exit(0);
+  } else {
+    console.error('Server error:', err);
+    process.exit(1);
+  }
+});
